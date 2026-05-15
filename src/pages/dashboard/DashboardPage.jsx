@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell, PieChart, Pie,
+  AreaChart, Area, LineChart, Line, RadialBarChart, RadialBar,
 } from 'recharts';
 
 // ─── Exact colors from screenshot ────────────────────────
@@ -26,18 +27,18 @@ const C = {
 // ─── Mock data ────────────────────────────────────────────
 const chartData = {
   Week: [
-    { n: 'Mon', v: 18 }, { n: 'Tue', v: 30 }, { n: 'Wed', v: 25 },
-    { n: 'Thu', v: 38 }, { n: 'Fri', v: 32 }, { n: 'Sat', v: 20 }, { n: 'Sun', v: 14 },
+    { n: 'Mon', v: 18, max: 40 }, { n: 'Tue', v: 30, max: 40 }, { n: 'Wed', v: 25, max: 40 },
+    { n: 'Thu', v: 38, max: 40 }, { n: 'Fri', v: 32, max: 40 }, { n: 'Sat', v: 20, max: 40 }, { n: 'Sun', v: 14, max: 40 },
   ],
   Month: [
-    { n: 'Jan', v: 18 }, { n: 'Feb', v: 14 }, { n: 'Mar', v: 28 },
-    { n: 'Apr', v: 20 }, { n: 'May', v: 26 }, { n: 'Jun', v: 32 },
-    { n: 'Jul', v: 22 }, { n: 'Aug', v: 28 }, { n: 'Sep', v: 24 },
-    { n: 'Oct', v: 36 }, { n: 'Nov', v: 30 }, { n: 'Dec', v: 18 },
+    { n: 'Jan', v: 18, max: 40 }, { n: 'Feb', v: 14, max: 40 }, { n: 'Mar', v: 28, max: 40 },
+    { n: 'Apr', v: 20, max: 40 }, { n: 'May', v: 26, max: 40 }, { n: 'Jun', v: 32, max: 40 },
+    { n: 'Jul', v: 22, max: 40 }, { n: 'Aug', v: 28, max: 40 }, { n: 'Sep', v: 24, max: 40 },
+    { n: 'Oct', v: 36, max: 40 }, { n: 'Nov', v: 30, max: 40 }, { n: 'Dec', v: 18, max: 40 },
   ],
   Year: [
-    { n: '2020', v: 280 }, { n: '2021', v: 360 }, { n: '2022', v: 320 },
-    { n: '2023', v: 420 }, { n: '2024', v: 480 },
+    { n: '2020', v: 280, max: 500 }, { n: '2021', v: 360, max: 500 }, { n: '2022', v: 320, max: 500 },
+    { n: '2023', v: 420, max: 500 }, { n: '2024', v: 480, max: 500 },
   ],
 };
 
@@ -70,20 +71,58 @@ const patients = [
   },
 ];
 
-// ─── Sparkline bars ───────────────────────────────────────
-const Spark = ({ color, vals }) => (
-  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 32 }}>
-    {vals.map((h, i) => (
-      <div
-        key={i}
-        style={{
-          width: 5, height: h, borderRadius: 2,
-          background: color, opacity: 0.55 + i * 0.05,
-        }}
-      />
-    ))}
-  </div>
-);
+// ─── Mini chart variants ─────────────────────────────────
+// ─── Mini charts matching reference ──────────────────────────
+// Card 1 & 3: green vertical bars
+const SparkBars = ({ vals = [] }) => {
+  const max = Math.max(...vals);
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 52, flexShrink: 0 }}>
+      {vals.map((v, i) => (
+        <div key={i} style={{
+          width: 7, borderRadius: 4,
+          height: `${Math.max(20, (v / max) * 100)}%`,
+          background: '#4ADE80',
+          opacity: 0.45 + (i / vals.length) * 0.5,
+        }} />
+      ))}
+    </div>
+  );
+};
+// Card 2: blue wavy line
+const SparkWave = ({ vals = [] }) => {
+  const d = vals.map((v) => ({ v }));
+  return (
+    <LineChart width={130} height={56} data={d} margin={{ top: 8, right: 4, left: 4, bottom: 4 }}>
+      <Line type="monotone" dataKey="v" stroke="#818CF8" strokeWidth={2}
+        dot={false} isAnimationActive={false} />
+    </LineChart>
+  );
+};
+// Card 4: half-moon arc with tick
+const SparkArc = ({ pct = 87 }) => {
+  const W = 90, H = 58;
+  const cx = W / 2, cy = H - 4;
+  const r = 36, sw = 8;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const pt = (deg) => [cx + r * Math.cos(toRad(deg)), cy + r * Math.sin(toRad(deg))];
+  const [x1, y1] = pt(180);
+  const [x2, y2] = pt(0);
+  const endDeg = 180 - (pct / 100) * 180;
+  const [ex, ey] = pt(endDeg);
+  const lg = pct > 50 ? 1 : 0;
+  return (
+    <svg width={W} height={H}>
+      <path d={`M${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2}`}
+        fill="none" stroke="#E8EDF5" strokeWidth={sw} strokeLinecap="round" />
+      <path d={`M${x1},${y1} A${r},${r} 0 ${lg},1 ${ex},${ey}`}
+        fill="none" stroke="#818CF8" strokeWidth={sw} strokeLinecap="round" />
+      <circle cx={cx} cy={cy} r={14} fill="#EEF3FD" />
+      <path d={`M${cx-5},${cy} l4 4 6-6`} stroke="#818CF8" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  );
+};
 
 // ─── Circular arc (client satisfaction) ──────────────────
 const Arc = ({ pct }) => {
@@ -107,13 +146,13 @@ const Arc = ({ pct }) => {
   );
 };
 
-// ─── Rounded-top bar shape ────────────────────────────────
+// ─── Rounded bar (used for both bg track and value) ────────────
 const RBar = ({ x, y, width, height, fill }) => {
   if (!height || height < 1) return null;
-  const r = Math.min(4, width / 2);
+  const r = Math.min(width / 2, height / 2);
   return (
     <path
-      d={`M${x},${y + r} Q${x},${y} ${x + r},${y} H${x + width - r} Q${x + width},${y} ${x + width},${y + r} V${y + height} H${x} Z`}
+      d={`M${x},${y + r} Q${x},${y} ${x + r},${y} H${x + width - r} Q${x + width},${y} ${x + width},${y + r} V${y + height - r} Q${x + width},${y + height} ${x + width - r},${y + height} H${x + r} Q${x},${y + height} ${x},${y + height - r} Z`}
       fill={fill}
     />
   );
@@ -123,7 +162,7 @@ const RBar = ({ x, y, width, height, fill }) => {
 const ChartTip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#fff', border: '1px solid #E8EDF5', borderRadius: 10, padding: '6px 12px', fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+    <div style={{ background: '#fff', border: '1px solid #E8EDF5', borderRadius: 10, padding: '6px 12px', fontSize: 12 }}>
       <div style={{ fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{label}</div>
       <div style={{ color: C.blue, fontWeight: 700 }}>{payload[0].value} appts</div>
     </div>
@@ -132,40 +171,58 @@ const ChartTip = ({ active, payload, label }) => {
 
 // ─── Stat card ────────────────────────────────────────────
 const StatCard = ({ label, value, pct, pctColor = C.emerald, right, iconBg = '#F1F5F9', icon }) => (
-  <div style={{ background: C.cardBg, borderRadius: 16, padding: '16px 18px', border: `1px solid ${C.border}`, flex: 1, minWidth: 0 }}>
-    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
-      <span style={{ fontSize: 12.5, fontWeight: 500, color: C.textMid }}>{label}</span>
-      <div style={{ width: 30, height: 30, borderRadius: 8, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+  <div style={{ background: C.cardBg, borderRadius: 16, padding: '16px 18px', border: `1px solid ${C.border}`, flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
+      <span style={{ fontSize: 13.5, fontWeight: 600, color: C.textMid }}>{label}</span>
+      <div style={{ width: 42, height: 42, borderRadius: 12, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {icon}
       </div>
     </div>
-    <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark, letterSpacing: '-0.5px', marginBottom: 8 }}>{value}</div>
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark, letterSpacing: '-0.5px', marginBottom: 6 }}>{value}</div>
+    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flex: 1 }}>
       <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600, color: pctColor }}>
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
           <path d="M18 15l-6-6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
         </svg>
         {pct}
       </span>
-      {right}
+      <div style={{ alignSelf: 'flex-end' }}>{right}</div>
     </div>
   </div>
 );
 
 // ─── SVG icons for stat cards ─────────────────────────────
+// Total Members → group of people
 const IcoUsers = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round"/>
-    <circle cx="9" cy="7" r="4" stroke="#94A3B8" strokeWidth="1.8"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round"/>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+    <circle cx="9" cy="7" r="4" stroke="#94A3B8" strokeWidth="2"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
   </svg>
 );
+// Active members → user with checkmark
+const IcoUserCheck = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+    <circle cx="9" cy="7" r="4" stroke="#94A3B8" strokeWidth="2"/>
+    <path d="M16 11l2 2 4-4" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+// Non-active members → user with X
+const IcoUserX = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+    <circle cx="9" cy="7" r="4" stroke="#94A3B8" strokeWidth="2"/>
+    <line x1="17" y1="10" x2="23" y2="16" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+    <line x1="23" y1="10" x2="17" y2="16" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+// New invites → envelope with plus
 const IcoUserPlus = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round"/>
-    <circle cx="9" cy="7" r="4" stroke="#94A3B8" strokeWidth="1.8"/>
-    <line x1="19" y1="8" x2="19" y2="14" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round"/>
-    <line x1="22" y1="11" x2="16" y2="11" stroke="#94A3B8" strokeWidth="1.8" strokeLinecap="round"/>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <rect x="2" y="5" width="20" height="14" rx="2.5" stroke="#94A3B8" strokeWidth="2"/>
+    <path d="M2 8l10 7 10-7" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M17 3v4M15 5h4" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
   </svg>
 );
 const IcoCoin = () => (
@@ -208,58 +265,47 @@ export default function DashboardPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
 
         <StatCard
-          label="Active patients"
+          label="Total Members"
           value="3,549"
           pct="31% this month"
           icon={<IcoUsers />}
-          right={<Spark color="#4ADE80" vals={[8,12,10,16,13,18,15,20,17,22]} />}
+          iconBg="#EEF3FD"
+          right={<SparkBars vals={[8,12,10,16,13,18,15,20,17,22,19,24]} />}
         />
         <StatCard
-          label="New patients"
+          label="Active Members"
+          value="2,847"
+          pct="18% this month"
+          icon={<IcoUserCheck />}
+          iconBg="#D1FAE5"
+          right={<SparkWave vals={[10,14,12,16,18,15,20,22,19,24,21,26]} />}
+        />
+        <StatCard
+          label="Non Active Members"
+          value="702"
+          pct="8% this month"
+          pctColor={C.red}
+          icon={<IcoUserX />}
+          iconBg="#FEE2E2"
+          right={<SparkBars vals={[14,10,18,12,16,8,20,14,18,12,16,10]} />}
+        />
+        <StatCard
+          label="New Invites (last 30 days)"
           value="+1,537"
           pct="13% this month"
-          pctColor={C.red}
           icon={<IcoUserPlus />}
-          right={<Spark color="#93C5FD" vals={[10,8,14,12,16,14,18,16,20,18]} />}
+          iconBg="#FEF3C7"
+          right={<SparkArc pct={72} />}
         />
-        <StatCard
-          label="Revenue"
-          value="$11,750"
-          pct="17% this month"
-          icon={<IcoCoin />}
-          right={<Spark color="#4ADE80" vals={[12,10,18,14,20,16,22,18,24,20]} />}
-        />
-
-        {/* Client satisfaction — special layout */}
-        <div style={{ background: C.cardBg, borderRadius: 16, padding: '16px 18px', border: `1px solid ${C.border}` }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontSize: 12.5, fontWeight: 500, color: C.textMid }}>Client satisfaction</span>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <IcoSmile />
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark, letterSpacing: '-0.5px', marginBottom: 6 }}>87%</div>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600, color: C.emerald }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 15l-6-6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                </svg>
-                11% this month
-              </span>
-            </div>
-            <Arc pct={87} />
-          </div>
-        </div>
       </div>
 
       {/* ── Row 2: Bar chart + Donut ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 14 }}>
 
         {/* Bar chart card */}
-        <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: C.textDark }}>Total appointments</span>
+        <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px 0', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexShrink: 0 }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: C.textDark }}>Member Growth Trends</span>
             {/* Tab switcher */}
             <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 10, padding: 3, gap: 2 }}>
               {['Week', 'Month', 'Year'].map((t) => (
@@ -279,24 +325,27 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={185}>
-            <BarChart data={data} barSize={tab === 'Month' ? 16 : 24} margin={{ top: 2, right: 2, left: -22, bottom: 0 }}>
+          <div style={{ flex: 1, minHeight: 0 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} barSize={tab === 'Month' ? 26 : 34} margin={{ top: 10, right: 2, left: -22, bottom: 10 }} barCategoryGap="35%">
               <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0" />
-              <XAxis dataKey="n" axisLine={false} tickLine={false} tick={{ fontSize: 10.5, fill: '#94A3B8', fontFamily: 'Inter' }} />
+              <XAxis dataKey="n" axisLine={false} tickLine={false} tick={{ fontSize: 10.5, fill: '#94A3B8', fontFamily: 'Inter' }} height={22} />
               <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10.5, fill: '#94A3B8', fontFamily: 'Inter' }} tickFormatter={(v) => `${v/1000 >= 1 ? v/1000+'k' : v}`} />
-              <Tooltip content={<ChartTip />} cursor={{ fill: 'rgba(74,127,229,0.06)', radius: 6 }} />
-              <Bar dataKey="v" shape={<RBar />}>
+              <Tooltip content={<ChartTip />} cursor={false} />
+              {/* Single value bar only — no background track */}
+              <Bar dataKey="v" shape={<RBar />} isAnimationActive={false}>
                 {data.map((_, i) => (
-                  <Cell key={i} fill={i === hiIdx ? C.blueBar : C.greenBar} />
+                  <Cell key={i} fill={i === hiIdx ? '#4A7FE5' : '#86EFAC'} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Donut card */}
         <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: C.textDark, marginBottom: 12 }}>Revenue source distribution</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: C.textDark, marginBottom: 12 }}>Revenue source distribution</span>
 
           {/* Donut chart */}
           <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', marginBottom: 10 }}>
@@ -356,7 +405,7 @@ export default function DashboardPage() {
       {/* ── Row 3: Upcoming patients ── */}
       <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}` }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 14, fontWeight: 700, color: C.textDark }}>Upcoming patients</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: C.textDark }}>Upcoming patients</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {/* Prev / Next arrows */}
             {[

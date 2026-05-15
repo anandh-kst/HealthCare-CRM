@@ -2,9 +2,9 @@ const Topbar = ({ title = 'Dashboard' }) => (
   <header
     className="flex items-center justify-between flex-shrink-0"
     style={{
-      height: 58,
+      height: 56,
       background: 'transparent',
-      padding: '0 20px 0 16px',
+      padding: '12px 20px 0 16px',
     }}
   >
     {/* Page title */}
