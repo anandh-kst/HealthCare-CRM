@@ -46,11 +46,9 @@ const chartData = {
 const HIGHLIGHT_IDX = { Week: 3, Month: 9, Year: 3 };
 
 const donutData = [
-  { name: 'Consultations', pct: 33, color: '#FBBF24' },
-  { name: 'Lab tests',     pct: 23, color: '#60A5FA' },
-  { name: 'Operation',     pct: 19, color: '#34D399' },
-  { name: 'Insurance',     pct: 13, color: '#A78BFA' },
-  { name: 'Others',        pct: 12, color: '#F87171' },
+  { name: 'Consultations', pct: 40, color: '#FBBF24' },
+  { name: 'Lab tests',     pct: 35, color: '#60A5FA' },
+  { name: 'Others',        pct: 25, color: '#F87171' },
 ];
 
 const patients = [
@@ -71,56 +69,92 @@ const patients = [
   },
 ];
 
-// ─── Mini chart variants ─────────────────────────────────
-// ─── Mini charts matching reference ──────────────────────────
-// Card 1 & 3: green vertical bars
+// ─── Card 1: thin bars, gap, highest = blue
 const SparkBars = ({ vals = [] }) => {
   const max = Math.max(...vals);
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 52, flexShrink: 0 }}>
+    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 52, width: '100%' }}>
       {vals.map((v, i) => (
         <div key={i} style={{
-          width: 7, borderRadius: 4,
-          height: `${Math.max(20, (v / max) * 100)}%`,
-          background: '#4ADE80',
-          opacity: 0.45 + (i / vals.length) * 0.5,
+          width: 6, flexShrink: 0, borderRadius: 4,
+          height: `${Math.max(15, (v / max) * 100)}%`,
+          background: v === max ? '#4A7FE5' : '#4ADE80',
         }} />
       ))}
     </div>
   );
 };
-// Card 2: blue wavy line
-const SparkWave = ({ vals = [] }) => {
+// Card 2: area chart with filled bg
+const SparkArea = ({ vals = [] }) => {
   const d = vals.map((v) => ({ v }));
   return (
-    <LineChart width={130} height={56} data={d} margin={{ top: 8, right: 4, left: 4, bottom: 4 }}>
-      <Line type="monotone" dataKey="v" stroke="#818CF8" strokeWidth={2}
-        dot={false} isAnimationActive={false} />
-    </LineChart>
+    <div style={{ width: '100%', height: 52 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={d} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#818CF8" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#818CF8" stopOpacity={0.03} />
+            </linearGradient>
+          </defs>
+          <Area type="monotone" dataKey="v" stroke="#818CF8" strokeWidth={2}
+            fill="url(#areaGrad)" dot={false} isAnimationActive={false} />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
-// Card 4: half-moon arc with tick
-const SparkArc = ({ pct = 87 }) => {
-  const W = 90, H = 58;
-  const cx = W / 2, cy = H - 4;
-  const r = 36, sw = 8;
-  const toRad = (d) => (d * Math.PI) / 180;
-  const pt = (deg) => [cx + r * Math.cos(toRad(deg)), cy + r * Math.sin(toRad(deg))];
-  const [x1, y1] = pt(180);
-  const [x2, y2] = pt(0);
-  const endDeg = 180 - (pct / 100) * 180;
-  const [ex, ey] = pt(endDeg);
-  const lg = pct > 50 ? 1 : 0;
+// Card 3: thin bars each with gray top padding (like a track behind each bar)
+const SparkBarsGray = ({ vals = [] }) => {
+  const max = Math.max(...vals);
   return (
-    <svg width={W} height={H}>
-      <path d={`M${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2}`}
-        fill="none" stroke="#E8EDF5" strokeWidth={sw} strokeLinecap="round" />
-      <path d={`M${x1},${y1} A${r},${r} 0 ${lg},1 ${ex},${ey}`}
-        fill="none" stroke="#818CF8" strokeWidth={sw} strokeLinecap="round" />
-      <circle cx={cx} cy={cy} r={14} fill="#EEF3FD" />
-      <path d={`M${cx-5},${cy} l4 4 6-6`} stroke="#818CF8" strokeWidth="2"
-        strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
+    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 52, width: '100%' }}>
+      {vals.map((v, i) => {
+        const pct = Math.max(15, (v / max) * 100);
+        return (
+          <div key={i} style={{ width: 6, flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', borderRadius: 4, overflow: 'hidden', background: '#F1F5F9' }}>
+            <div style={{ height: `${pct}%`, background: v >= 30 ? '#4ADE80' : '#F87171', borderRadius: 4 }} />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+// Card 4: speedometer gauge
+const SparkArc = ({ pct = 80 }) => {
+  const vW = 100, vH = 56;
+  const cx = vW / 2, cy = vH;
+  const r = 40, sw = 12;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const pt = (deg) => [
+    cx + r * Math.cos(toRad(deg)),
+    cy - r * Math.sin(toRad(deg)),
+  ];
+  const [sx, sy] = pt(180);
+  const [ex, ey] = pt(0);
+  // total arc length of semicircle
+  const arcLen = Math.PI * r;
+  const fillLen = (pct / 100) * arcLen;
+  const fillDeg = 180 - (pct / 100) * 180;
+  const [nx, ny] = pt(fillDeg);
+  const nLen = r - 8;
+  const needleX = cx + nLen * Math.cos(toRad(fillDeg));
+  const needleY = cy - nLen * Math.sin(toRad(fillDeg));
+  return (
+    <div style={{ width: '100%', height: vH }}>
+      <svg width="100%" height={vH} viewBox={`0 0 ${vW} ${vH}`} preserveAspectRatio="xMidYMid meet">
+        {/* full gray track */}
+        <path d={`M${sx},${sy} A${r},${r} 0 0,1 ${ex},${ey}`}
+          fill="none" stroke="#E2E8F0" strokeWidth={sw} strokeLinecap="butt" />
+        {/* colored fill using dasharray — same path, no gap */}
+        <path d={`M${sx},${sy} A${r},${r} 0 0,1 ${ex},${ey}`}
+          fill="none" stroke="#818CF8" strokeWidth={sw} strokeLinecap="butt"
+          strokeDasharray={`${fillLen} ${arcLen}`} />
+        {/* needle */}
+        <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke="#475569" strokeWidth="2.5" strokeLinecap="round" />
+        <circle cx={cx} cy={cy} r="3.5" fill="#475569" />
+      </svg>
+    </div>
   );
 };
 
@@ -142,6 +176,43 @@ const Arc = ({ pct }) => {
       {/* small tick icon at end */}
       <circle cx={cx} cy={cy} r="10" fill={C.blueLight} />
       <path d="M29 34l3 3 7-7" stroke={C.blue} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    </svg>
+  );
+};
+
+// ─── Rounded Donut (custom SVG arcs with rounded ends) ──────────
+const RoundedDonut = ({ data, size = 170, cx = 81, cy = 81, innerRadius = 48, outerRadius = 78 }) => {
+  const r = (innerRadius + outerRadius) / 2;
+  const sw = outerRadius - innerRadius;
+  const circ = 2 * Math.PI * r;
+  const total = data.reduce((s, d) => s + d.pct, 0);
+  // extra angle to hide the rounded cap overlap (half strokeWidth on each side)
+  const gapAngle = (40 / (2 * Math.PI * r)) * 360;
+  let angle = 90;
+  return (
+    <svg width={size} height={size}>
+      {data.map((d) => {
+        const sweep = (d.pct / total) * 360 - gapAngle;
+        const start = angle;
+        angle += sweep + gapAngle;
+        const endA = start + sweep;
+        const toRad = (a) => (a * Math.PI) / 180;
+        const x1 = cx + r * Math.cos(toRad(start));
+        const y1 = cy - r * Math.sin(toRad(start));
+        const x2 = cx + r * Math.cos(toRad(endA));
+        const y2 = cy - r * Math.sin(toRad(endA));
+        const large = (endA - start) > 180 ? 1 : 0;
+        return (
+          <path
+            key={d.name}
+            d={`M${x1},${y1} A${r},${r} 0 ${large},0 ${x2},${y2}`}
+            fill="none"
+            stroke={d.color}
+            strokeWidth={sw}
+            strokeLinecap="round"
+          />
+        );
+      })}
     </svg>
   );
 };
@@ -171,58 +242,64 @@ const ChartTip = ({ active, payload, label }) => {
 
 // ─── Stat card ────────────────────────────────────────────
 const StatCard = ({ label, value, pct, pctColor = C.emerald, right, iconBg = '#F1F5F9', icon }) => (
-  <div style={{ background: C.cardBg, borderRadius: 16, padding: '16px 18px', border: `1px solid ${C.border}`, flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
+  <div
+    style={{ background: C.cardBg, borderRadius: 16, padding: '24px 18px', border: `1px solid ${C.border}`, flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20, transition: 'box-shadow 0.2s, transform 0.2s', cursor: 'default' }}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(74,127,229,0.13)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
+  >
+    {/* Row 1: title + icon */}
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <span style={{ fontSize: 13.5, fontWeight: 600, color: C.textMid }}>{label}</span>
-      <div style={{ width: 42, height: 42, borderRadius: 12, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <div style={{ width: 38, height: 38, borderRadius: '50%', background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {icon}
       </div>
     </div>
-    <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark, letterSpacing: '-0.5px', marginBottom: 6 }}>{value}</div>
-    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flex: 1 }}>
-      <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600, color: pctColor }}>
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-          <path d="M18 15l-6-6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-        </svg>
-        {pct}
-      </span>
-      <div style={{ alignSelf: 'flex-end' }}>{right}</div>
+    {/* Row 2: value+pct (50%) + graph (50%) */}
+    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+      <div style={{ width: '50%', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <span style={{ fontSize: 26, fontWeight: 800, color: C.textDark, letterSpacing: '-0.5px', lineHeight: 1 }}>{value}</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600, color: pctColor }}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+            <path d="M18 15l-6-6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+          {pct}
+        </span>
+      </div>
+      <div style={{ width: '50%', display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+        {right}
+      </div>
     </div>
   </div>
 );
 
-// ─── SVG icons for stat cards ─────────────────────────────
-// Total Members → group of people
+// ─── SVG icons ─────────────────────────────────────────────
 const IcoUsers = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
-    <circle cx="9" cy="7" r="4" stroke="#94A3B8" strokeWidth="2"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#1C2B4A" strokeWidth="2.5" strokeLinecap="round"/>
+    <circle cx="9" cy="7" r="4" stroke="#1C2B4A" strokeWidth="2.5"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="#1C2B4A" strokeWidth="2.5" strokeLinecap="round"/>
   </svg>
 );
-// Active members → user with checkmark
 const IcoUserCheck = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
-    <circle cx="9" cy="7" r="4" stroke="#94A3B8" strokeWidth="2"/>
-    <path d="M16 11l2 2 4-4" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#1C2B4A" strokeWidth="2.5" strokeLinecap="round"/>
+    <circle cx="9" cy="7" r="4" stroke="#1C2B4A" strokeWidth="2.5"/>
+    <path d="M16 11l2 2 4-4" stroke="#1C2B4A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
-// Non-active members → user with X
 const IcoUserX = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
-    <circle cx="9" cy="7" r="4" stroke="#94A3B8" strokeWidth="2"/>
-    <line x1="17" y1="10" x2="23" y2="16" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
-    <line x1="23" y1="10" x2="17" y2="16" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="#1C2B4A" strokeWidth="2.5" strokeLinecap="round"/>
+    <circle cx="9" cy="7" r="4" stroke="#1C2B4A" strokeWidth="2.5"/>
+    <line x1="17" y1="10" x2="23" y2="16" stroke="#1C2B4A" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="23" y1="10" x2="17" y2="16" stroke="#1C2B4A" strokeWidth="2.5" strokeLinecap="round"/>
   </svg>
 );
-// New invites → envelope with plus
 const IcoUserPlus = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <rect x="2" y="5" width="20" height="14" rx="2.5" stroke="#94A3B8" strokeWidth="2"/>
-    <path d="M2 8l10 7 10-7" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M17 3v4M15 5h4" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+    <rect x="2" y="5" width="20" height="14" rx="2.5" stroke="#1C2B4A" strokeWidth="2.5"/>
+    <path d="M2 8l10 7 10-7" stroke="#1C2B4A" strokeWidth="2.5" strokeLinecap="round"/>
+    <path d="M17 3v4M15 5h4" stroke="#1C2B4A" strokeWidth="2.5" strokeLinecap="round"/>
   </svg>
 );
 const IcoCoin = () => (
@@ -269,16 +346,16 @@ export default function DashboardPage() {
           value="3,549"
           pct="31% this month"
           icon={<IcoUsers />}
-          iconBg="#EEF3FD"
-          right={<SparkBars vals={[8,12,10,16,13,18,15,20,17,22,19,24]} />}
+          iconBg="#E2E8F0"
+          right={<SparkBars vals={[8,12,10,16,13,18,15]} />}
         />
         <StatCard
           label="Active Members"
           value="2,847"
           pct="18% this month"
           icon={<IcoUserCheck />}
-          iconBg="#D1FAE5"
-          right={<SparkWave vals={[10,14,12,16,18,15,20,22,19,24,21,26]} />}
+          iconBg="#E2E8F0"
+          right={<SparkArea vals={[10,14,12,16,18,15,20,22,19,24,21,26]} />}
         />
         <StatCard
           label="Non Active Members"
@@ -286,16 +363,16 @@ export default function DashboardPage() {
           pct="8% this month"
           pctColor={C.red}
           icon={<IcoUserX />}
-          iconBg="#FEE2E2"
-          right={<SparkBars vals={[14,10,18,12,16,8,20,14,18,12,16,10]} />}
+          iconBg="#E2E8F0"
+          right={<SparkBarsGray vals={[14,10,18,12,16,8,20]} />}
         />
         <StatCard
           label="New Invites (last 30 days)"
           value="+1,537"
           pct="13% this month"
           icon={<IcoUserPlus />}
-          iconBg="#FEF3C7"
-          right={<SparkArc pct={72} />}
+          iconBg="#E2E8F0"
+          right={<SparkArc pct={80} />}
         />
       </div>
 
@@ -349,18 +426,7 @@ export default function DashboardPage() {
 
           {/* Donut chart */}
           <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', marginBottom: 10 }}>
-            <PieChart width={170} height={170}>
-              <Pie
-                data={donutData} dataKey="pct"
-                cx={81} cy={81}
-                innerRadius={48} outerRadius={78}
-                paddingAngle={2.5}
-                startAngle={90} endAngle={-270}
-                stroke="none"
-              >
-                {donutData.map((d, i) => <Cell key={i} fill={d.color} />)}
-              </Pie>
-            </PieChart>
+            <RoundedDonut data={donutData} size={200} cx={96} cy={96} innerRadius={58} outerRadius={92} />
             {/* Center icon */}
             <div style={{
               position: 'absolute', top: '50%', left: '50%',
