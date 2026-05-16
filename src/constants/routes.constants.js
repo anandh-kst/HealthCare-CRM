@@ -6,6 +6,7 @@ export const ROUTES = {
   PATIENTS:          '/patients',
   PATIENT_DETAIL:    (id = ':id') => `/patients/${id}`,
   APPOINTMENTS:      '/appointments',
+  MEMBERS:           '/members',
   UNAUTHORIZED:      '/unauthorized',
   NOT_FOUND:         '*',
 };

@@ -5,6 +5,7 @@ import ErrorBoundary from '@components/shared/ErrorBoundary';
 
 const pageTitles = {
   '/dashboard':    'Dashboard',
+  '/members':      'Members',
   '/patients':     'Patients',
   '/appointments': 'Appointments',
 };
@@ -16,7 +17,7 @@ const DashboardLayout = () => {
   return (
     <div
       className="flex h-screen overflow-hidden"
-      style={{ background: '#EEF2F8' }}
+      style={{ background: '#E2E8F0' }}
     >
       {/* Sidebar — floating card with built-in gap */}
       <Sidebar />

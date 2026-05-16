@@ -46,26 +46,32 @@ const chartData = {
 const HIGHLIGHT_IDX = { Week: 3, Month: 9, Year: 3 };
 
 const donutData = [
-  { name: 'Consultations', pct: 40, color: '#FBBF24' },
-  { name: 'Lab tests',     pct: 35, color: '#60A5FA' },
-  { name: 'Others',        pct: 25, color: '#F87171' },
+  { name: 'Active',   pct: 45, color: '#34D399' },
+  { name: 'Inactive', pct: 30, color: '#F87171' },
+  { name: 'Pending',  pct: 25, color: '#FBBF24' },
 ];
 
-const patients = [
+const challenges = [
   {
-    id: 1, name: 'Chloe Wilson',  dx: 'Thyroid function follow-up',
-    date: 'Tue, Nov 13, 2025, 9:30 a.m.', dr: 'Dr. Daniel Ross',
-    initials: 'CW', bg: '#FEE2E2', fg: '#EF4444',
+    id: 1, title: '10K Step Challenge', type: 'Step Challenge',
+    date: 'Nov 15 – Nov 30, 2025', participants: 142,
+    progress: 68, iconBg: '#EEF3FD', iconColor: '#4A7FE5',
+    createdBy: 'Dr. Sarah Mills', groups: 8, device: 'Fitbit / Apple Watch', location: 'Citywide',
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 4v7h7M5 20l4-4m0 0l3-3m-3 3l-3-3m3 3l3 3" stroke="#4A7FE5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   },
   {
-    id: 2, name: 'Marcus Reed',   dx: 'Check-up',
-    date: 'Tue, Nov 13, 2025, 12 a.m.',   dr: 'Dr. Liam Taylor',
-    initials: 'MR', bg: '#FEF3C7', fg: '#D97706',
+    id: 2, title: 'Wellness Week Event', type: 'Wellness Event',
+    date: 'Dec 1 – Dec 7, 2025', participants: 89,
+    progress: 40, iconBg: '#D1FAE5', iconColor: '#10B981',
+    createdBy: 'Coach Liam Ray', groups: 5, device: 'Any Device', location: 'Main Hall, Block B',
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 4 13.5 4 8.5a8 8 0 0 1 16 0C20 13.5 12 21 12 21z" stroke="#10B981" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="8.5" r="2.5" stroke="#10B981" strokeWidth="2"/></svg>,
   },
   {
-    id: 3, name: 'Bessie Cooper', dx: 'Type 2 diabetes',
-    date: 'Tue, Nov 13, 2025, 11:45 a.m.', dr: 'Dr. Emily Parker',
-    initials: 'BC', bg: '#EDE9FE', fg: '#7C3AED',
+    id: 3, title: 'Morning Yoga Series', type: 'Yoga Session',
+    date: 'Dec 5 – Dec 20, 2025', participants: 57,
+    progress: 25, iconBg: '#EDE9FE', iconColor: '#7C3AED',
+    createdBy: 'Instructor Priya K.', groups: 3, device: 'Yoga Mat App', location: 'Studio 2, Floor 3',
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="4" r="2" stroke="#7C3AED" strokeWidth="2"/><path d="M12 6v5m0 0l-4 4m4-4l4 4M8 21l2-4m6 4l-2-4" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
   },
 ];
 
@@ -78,7 +84,7 @@ const SparkBars = ({ vals = [] }) => {
         <div key={i} style={{
           width: 6, flexShrink: 0, borderRadius: 4,
           height: `${Math.max(15, (v / max) * 100)}%`,
-          background: v === max ? '#4A7FE5' : '#4ADE80',
+          background: v === max ? 'rgba(74,127,229,0.5)' : 'rgba(74,222,128,0.45)',
         }} />
       ))}
     </div>
@@ -93,11 +99,11 @@ const SparkArea = ({ vals = [] }) => {
         <AreaChart data={d} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#818CF8" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="#818CF8" stopOpacity={0.03} />
+              <stop offset="0%" stopColor="#818CF8" stopOpacity={0.2} />
+              <stop offset="100%" stopColor="#818CF8" stopOpacity={0.02} />
             </linearGradient>
           </defs>
-          <Area type="monotone" dataKey="v" stroke="#818CF8" strokeWidth={2}
+          <Area type="monotone" dataKey="v" stroke="rgba(129,140,248,0.5)" strokeWidth={2}
             fill="url(#areaGrad)" dot={false} isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
@@ -112,8 +118,8 @@ const SparkBarsGray = ({ vals = [] }) => {
       {vals.map((v, i) => {
         const pct = Math.max(15, (v / max) * 100);
         return (
-          <div key={i} style={{ width: 6, flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', borderRadius: 4, overflow: 'hidden', background: '#F1F5F9' }}>
-            <div style={{ height: `${pct}%`, background: v >= 30 ? '#4ADE80' : '#F87171', borderRadius: 4 }} />
+          <div key={i} style={{ width: 6, flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', borderRadius: 4, overflow: 'hidden', background: 'rgba(241,245,249,0.7)' }}>
+            <div style={{ height: `${pct}%`, background: v >= 30 ? 'rgba(74,222,128,0.5)' : 'rgba(248,113,113,0.45)', borderRadius: 4 }} />
           </div>
         );
       })}
@@ -145,14 +151,14 @@ const SparkArc = ({ pct = 80 }) => {
       <svg width="100%" height={vH} viewBox={`0 0 ${vW} ${vH}`} preserveAspectRatio="xMidYMid meet">
         {/* full gray track */}
         <path d={`M${sx},${sy} A${r},${r} 0 0,1 ${ex},${ey}`}
-          fill="none" stroke="#E2E8F0" strokeWidth={sw} strokeLinecap="butt" />
+          fill="none" stroke="#E2E8F0" strokeWidth={sw} strokeLinecap="butt" opacity={0.5} />
         {/* colored fill using dasharray — same path, no gap */}
         <path d={`M${sx},${sy} A${r},${r} 0 0,1 ${ex},${ey}`}
-          fill="none" stroke="#818CF8" strokeWidth={sw} strokeLinecap="butt"
+          fill="none" stroke="#818CF8" strokeWidth={sw} strokeLinecap="butt" opacity={0.45}
           strokeDasharray={`${fillLen} ${arcLen}`} />
         {/* needle */}
-        <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke="#475569" strokeWidth="2.5" strokeLinecap="round" />
-        <circle cx={cx} cy={cy} r="3.5" fill="#475569" />
+        <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke="#475569" strokeWidth="2.5" strokeLinecap="round" opacity={0.5} />
+        <circle cx={cx} cy={cy} r="3.5" fill="#475569" opacity={0.5} />
       </svg>
     </div>
   );
@@ -422,115 +428,114 @@ export default function DashboardPage() {
 
         {/* Donut card */}
         <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: C.textDark, marginBottom: 12 }}>Revenue source distribution</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: C.textDark, marginBottom: 12 }}>Member Status Distribution</span>
 
-          {/* Donut chart */}
-          <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', marginBottom: 10 }}>
-            <RoundedDonut data={donutData} size={200} cx={96} cy={96} innerRadius={58} outerRadius={92} />
-            {/* Center icon */}
-            <div style={{
-              position: 'absolute', top: '50%', left: '50%',
-              transform: 'translate(-50%,-50%)',
-              width: 36, height: 36, borderRadius: '50%',
-              background: '#F1F5F9',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <IcoCoin />
-            </div>
-          </div>
-
-          {/* Legend */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
-            {donutData.map((d) => (
-              <div key={d.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: d.color, flexShrink: 0, display: 'inline-block' }} />
-                  <span style={{ fontSize: 11.5, color: '#64748B' }}>{d.name}</span>
-                </div>
-                <span style={{ fontSize: 11.5, fontWeight: 700, color: C.textDark }}>{d.pct}%</span>
+          {/* Donut + legend side by side */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+            <div style={{ position: 'relative', flexShrink: 0, width: '50%', display: 'flex', justifyContent: 'center' }}>
+              <RoundedDonut data={donutData} size={220} cx={106} cy={106} innerRadius={64} outerRadius={100} />
+              <div style={{
+                position: 'absolute', top: '50%', left: '50%',
+                transform: 'translate(-50%,-50%)',
+                width: 36, height: 36, borderRadius: '50%',
+                background: '#F1F5F9',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="9" cy="7" r="4" stroke="#94A3B8" strokeWidth="2"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
               </div>
-            ))}
-          </div>
-
-          {/* Info banner */}
-          <div style={{
-            marginTop: 12, background: '#EEF3FD', borderRadius: 10,
-            padding: '7px 10px', display: 'flex', alignItems: 'center', gap: 7,
-          }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-              <circle cx="12" cy="12" r="9" stroke={C.blue} strokeWidth="2"/>
-              <path d="M12 8v4M12 16h.01" stroke={C.blue} strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            <span style={{ fontSize: 11, color: C.blue, fontWeight: 500 }}>
-              Your insurance income is climbing by 12%!
-            </span>
+            </div>
+            {/* Legend + banner stacked in 40% */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '50%' }}>
+              {donutData.map((d) => (
+                <div key={d.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', lineHeight: 1.8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: d.color, flexShrink: 0, display: 'inline-block' }} />
+                    <span style={{ fontSize: 12, color: '#64748B' }}>{d.name}</span>
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: C.textDark }}>{d.pct}%</span>
+                </div>
+              ))}
+              {/* Info banner inside 40% column */}
+              <div style={{ marginTop: 4, background: '#EEF3FD', borderRadius: 10, padding: '7px 10px', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <circle cx="12" cy="12" r="9" stroke={C.blue} strokeWidth="2"/>
+                  <path d="M12 8v4M12 16h.01" stroke={C.blue} strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                <span style={{ fontSize: 11, color: C.blue, fontWeight: 500, lineHeight: 1.5 }}>
+                  Active members increased by 12% this month!
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Row 3: Upcoming patients ── */}
-      <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}` }}>
+      {/* ── Row 3: Upcoming Challenges ── */}
+      <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}`, marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: C.textDark }}>Upcoming patients</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {/* Prev / Next arrows */}
-            {[
-              <path key="l" d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>,
-              <path key="r" d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>,
-            ].map((p, i) => (
-              <button key={i} style={{
-                width: 26, height: 26, borderRadius: 7,
-                border: `1px solid ${C.border}`, background: '#fff',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: '#94A3B8',
-              }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">{p}</svg>
-              </button>
-            ))}
-            <button style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: C.blue, background: 'none', border: 'none', cursor: 'pointer' }}>
-              View all
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                <path d="M7 17L17 7M17 7H7M17 7v10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            </button>
-          </div>
+          <span style={{ fontSize: 15, fontWeight: 700, color: C.textDark }}>Upcoming Challenges</span>
+          <button style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: C.blue, background: 'none', border: 'none', cursor: 'pointer' }}>
+            View all
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H7M17 7v10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
-          {patients.map((p) => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+          {challenges.map((c) => (
             <div
-              key={p.id}
-              style={{
-                border: `1px solid ${C.border}`, borderRadius: 14,
-                padding: '14px 16px', cursor: 'pointer', transition: 'box-shadow .2s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(74,127,229,0.12)'}
-              onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+              key={c.id}
+              style={{ border: `1px solid ${C.border}`, borderRadius: 16, padding: '18px 18px', cursor: 'pointer', transition: 'box-shadow .2s, transform .2s', background: C.cardBg }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(74,127,229,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
-              {/* Patient header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                <div style={{
-                  width: 38, height: 38, borderRadius: '50%',
-                  background: p.bg, color: p.fg,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 13, fontWeight: 700, flexShrink: 0,
-                }}>
-                  {p.initials}
+              {/* Header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: c.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {c.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark, lineHeight: 1.3 }}>{p.name}</div>
-                  <div style={{ fontSize: 11, color: C.textMid, marginTop: 1 }}>{p.dx}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: C.textDark, lineHeight: 1.3 }}>{c.title}</div>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: c.iconColor, background: c.iconBg, borderRadius: 20, padding: '2px 8px', display: 'inline-block', marginTop: 3 }}>{c.type}</span>
                 </div>
               </div>
+
               {/* Date */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, background: '#F8FAFC', borderRadius: 8, padding: '6px 10px' }}>
                 <IcoCalSmall />
-                <span style={{ fontSize: 11, color: C.textMid }}>{p.date}</span>
+                <span style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>{c.date}</span>
               </div>
-              {/* Doctor */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <IcoDrSmall />
-                <span style={{ fontSize: 11, color: C.textMid }}>{p.dr}</span>
+
+              {/* Meta info */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
+                {[
+                  { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="7" r="4" stroke="#94A3B8" strokeWidth="2"/></svg>, label: 'Created By', value: c.createdBy },
+                  { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="#94A3B8" strokeWidth="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="#94A3B8" strokeWidth="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="#94A3B8" strokeWidth="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="#94A3B8" strokeWidth="2"/></svg>, label: 'Groups', value: `${c.groups} groups` },
+                  { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" stroke="#94A3B8" strokeWidth="2"/><path d="M12 18h.01" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/></svg>, label: 'Device', value: c.device },
+                  { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z" stroke="#94A3B8" strokeWidth="2"/><circle cx="12" cy="10" r="2" stroke="#94A3B8" strokeWidth="2"/></svg>, label: 'Location', value: c.location },
+                ].map((item, i) => (
+                  <div key={i} style={{ background: '#F8FAFC', borderRadius: 8, padding: '7px 10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                      {item.icon}
+                      <span style={{ fontSize: 10, color: C.textLight, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{item.label}</span>
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{item.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Progress */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>{c.participants} members</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: c.iconColor }}>{c.progress}%</span>
+              </div>
+              <div style={{ height: 6, borderRadius: 99, background: '#F1F5F9', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${c.progress}%`, background: c.iconColor, borderRadius: 99, opacity: 0.75 }} />
               </div>
             </div>
           ))}

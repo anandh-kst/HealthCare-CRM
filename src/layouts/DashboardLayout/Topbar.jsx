@@ -44,7 +44,7 @@ const Topbar = ({ title = 'Dashboard' }) => (
         </svg>
       </div>
       <span style={{ fontSize: 13, fontWeight: 500, color: '#374151', whiteSpace: 'nowrap' }}>
-        Eden Medicover
+       Anandh KS
       </span>
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ color: '#9CA3AF', flexShrink: 0 }}>
         <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

@@ -12,6 +12,13 @@ const IconDashboard = () => (
     <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2.2"/>
   </svg>
 );
+const IconMembers = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+    <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2.2"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+  </svg>
+);
 const IconPatients = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
     <path d="M6 3v7a6 6 0 0 0 12 0V3" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
@@ -80,6 +87,7 @@ const card = {
 
 const mainNav = [
   { path: ROUTES.DASHBOARD,    icon: <IconDashboard />,    label: 'Dashboard' },
+  { path: ROUTES.MEMBERS,      icon: <IconMembers />,      label: 'Members' },
   { path: ROUTES.PATIENTS,     icon: <IconPatients />,     label: 'Patients' },
   { path: ROUTES.APPOINTMENTS, icon: <IconAppointments />, label: 'Appointments' },
   { path: '#lab',              icon: <IconLab />,          label: 'Lab' },
@@ -145,7 +153,7 @@ const Sidebar = ({ title }) => (
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'space-between',
-      padding: '12px 0 12px 10px',
+      padding: '12px 0 12px 16px',
       background: 'transparent',
       boxSizing: 'border-box',
     }}
