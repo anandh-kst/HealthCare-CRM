@@ -2,6 +2,9 @@ import { useState } from 'react';
 
 const C = {
   blue:      '#4A7FE5',
+  green:     '#10B981',
+  greenLight:'#ECFDF5',
+  greenHeader:'#D1FAE8',
   textDark:  '#1C2B4A',
   textMid:   '#64748B',
   textLight: '#94A3B8',
@@ -102,18 +105,19 @@ export default function MembersPage() {
     return [1, '...', safePage - 1, safePage, safePage + 1, '...', totalPages];
   };
 
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 ,padding:"10px 0px"}}>
 
       {/* ── Row 1: Invite + Export ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <button style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 20px', borderRadius: 10, border: 'none', background: C.blue, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',padding: '0px 10px' }}>
+        <button style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '12px 20px', borderRadius: 10, border: 'none', background: C.green, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
           </svg>
           Invite Member
         </button>
-        <button style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 20px', borderRadius: 10, border: `1px solid ${C.border}`, background: C.cardBg, fontSize: 13, fontWeight: 600, color: C.textDark, cursor: 'pointer' }}>
+        <button style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 20px', borderRadius: 10, border: `1px solid ${C.green}`, background: C.cardBg, fontSize: 13, fontWeight: 600, color: C.green, cursor: 'pointer' }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -122,26 +126,31 @@ export default function MembersPage() {
       </div>
 
       {/* ── Row 2: Search + Filters ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: C.cardBg, borderRadius: 14, padding: '12px 16px', border: `1px solid ${C.border}` }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: '#F8FAFC', borderRadius: 10, padding: '8px 12px', border: `1px solid ${C.border}` }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, background: 'transparent', borderRadius: 14, padding: '12px 0' }}>
+        {/* Search box: share width with filters */}
+        <div style={{ width: 350, height: 50, display: 'flex', alignItems: 'center', gap: 8, background: C.cardBg, borderRadius: 10, padding: '0 8px', border: `1px solid ${C.border}` }}>
+          <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
             <circle cx="11" cy="11" r="7" stroke={C.textLight} strokeWidth="2"/>
             <path d="M21 21l-4.35-4.35" stroke={C.textLight} strokeWidth="2" strokeLinecap="round"/>
           </svg>
           <input value={search} onChange={e => reset(setSearch)(e.target.value)} placeholder="Search members..."
-            style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: C.textDark, width: '100%' }} />
+            style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: C.textDark, width: '100%', height: '100%' }} />
         </div>
-        <Sel value={status} onChange={reset(setStatus)} options={STATUSES} />
-        <Sel value={group}  onChange={reset(setGroup)}  options={GROUPS} />
-        <Sel value={sort}   onChange={reset(setSort)}   options={SORTS} />
+
+        {/* Filters box: share width with search */}
+        <div style={{ width: 400, height: 50, display: 'flex', gap: 8, alignItems: 'center', background: C.cardBg, borderRadius: 10, padding: '8px 8px', border: `1px solid ${C.border}` }}>
+          <Sel value={status} onChange={reset(setStatus)} options={STATUSES} style={{ height: '100%', flex: 1, minWidth: 0, padding: '6px 12px', borderRadius: 8 }} />
+          <Sel value={group}  onChange={reset(setGroup)}  options={GROUPS}  style={{ height: '100%', flex: 1, minWidth: 0, padding: '6px 12px', borderRadius: 8 }} />
+          <Sel value={sort}   onChange={reset(setSort)}   options={SORTS}   style={{ height: '100%', flex: 1, minWidth: 0, padding: '6px 12px', borderRadius: 8 }} />
+        </div>
       </div>
 
       {/* ── Row 3: Table ── */}
       <div style={{ background: C.cardBg, borderRadius: 16, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
         {/* Table head */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2.2fr 1.4fr 1.3fr 1.6fr 1fr 44px', padding: '15px 20px', borderBottom: `1px solid ${C.border}`, background: '#F8FAFC' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2.2fr 1.4fr 1.3fr 1.6fr 1fr 44px', padding: '15px 20px', borderBottom: `1px solid ${C.border}`, background: C.greenHeader }}>
           {['Member', 'Group', 'Joined At', 'Invited By', 'Status', ''].map((h, i) => (
-            <span key={i} style={{ fontSize: 11, fontWeight: 700, color: C.textLight, textTransform: 'uppercase', letterSpacing: '0.7px', fontFamily: '"DM Sans", "Inter", system-ui, sans-serif' }}>{h}</span>
+            <span key={i} style={{ fontSize: 11, fontWeight: 700, color: C.textDark, textTransform: 'uppercase', letterSpacing: '0.7px', fontFamily: '"DM Sans", "Inter", system-ui, sans-serif' }}>{h}</span>
           ))}
         </div>
 
@@ -150,7 +159,7 @@ export default function MembersPage() {
         ) : paged.map((m, idx) => (
           <div key={m.id}
             style={{ display: 'grid', gridTemplateColumns: '2.2fr 1.4fr 1.3fr 1.6fr 1fr 44px', alignItems: 'center', padding: '13px 20px', borderBottom: idx < paged.length - 1 ? `1px solid ${C.border}` : 'none', transition: 'background .15s' }}
-            onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
+            onMouseEnter={e => e.currentTarget.style.background = C.greenLight}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
           >
             {/* Member */}
@@ -204,7 +213,7 @@ export default function MembersPage() {
                   {['View Profile', 'Edit Member', 'Change Status', 'Remove'].map((action, i) => (
                     <button key={i} onClick={() => setOpenMenu(null)}
                       style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 16px', border: 'none', background: 'none', fontSize: 13, fontWeight: 500, cursor: 'pointer', color: action === 'Remove' ? C.red : C.textDark }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
+                      onMouseEnter={e => e.currentTarget.style.background = C.greenLight}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >{action}</button>
                   ))}
@@ -224,14 +233,10 @@ export default function MembersPage() {
           <Sel value={String(perPage)} onChange={v => { setPerPage(Number(v)); setPage(1); }} options={PER_PAGE_OPTIONS.map(String)} style={{ padding: '5px 8px' }} />
         </div>
 
-        {/* Col 2: page buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+        {/* Col 2: page info */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <PagBtn label="Prev" disabled={safePage === 1} onClick={() => setPage(p => p - 1)} />
-          {pageNums().map((p, i) =>
-            p === '...'
-              ? <span key={i} style={{ padding: '0 4px', color: C.textLight, fontSize: 13 }}>…</span>
-              : <PagBtn key={i} label={p} active={p === safePage} onClick={() => setPage(p)} />
-          )}
+          <span style={{ fontSize: 13, color: C.textDark, minWidth: 80, textAlign: 'center' }}>{safePage} / {totalPages}</span>
           <PagBtn label="Next" disabled={safePage === totalPages} onClick={() => setPage(p => p + 1)} />
         </div>
 
@@ -258,8 +263,8 @@ const PagBtn = ({ label, onClick, disabled, active }) => (
     disabled={disabled}
     style={{
       minWidth: 34, height: 34, padding: '0 10px', borderRadius: 9,
-      border: `1px solid ${active ? C.blue : '#E8EDF5'}`,
-      background: active ? '#4A7FE5' : '#FFFFFF',
+      border: `1px solid ${active ? C.green : '#E8EDF5'}`,
+      background: active ? C.green : '#FFFFFF',
       fontSize: 13, fontWeight: 600,
       color: active ? '#fff' : disabled ? '#94A3B8' : '#1C2B4A',
       cursor: disabled ? 'default' : 'pointer',
