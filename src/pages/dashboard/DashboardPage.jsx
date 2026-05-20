@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell, PieChart, Pie,
@@ -187,7 +187,7 @@ const Arc = ({ pct }) => {
 };
 
 // ─── Rounded Donut (custom SVG arcs with rounded ends) ──────────
-const RoundedDonut = ({ data, size = 170, cx = 81, cy = 81, innerRadius = 48, outerRadius = 78 }) => {
+const RoundedDonut = ({ data, size = 170, cx = 81, cy = 81, innerRadius = 48, outerRadius = 78, animate = false }) => {
   const r = (innerRadius + outerRadius) / 2;
   const sw = outerRadius - innerRadius;
   const circ = 2 * Math.PI * r;
@@ -196,30 +196,59 @@ const RoundedDonut = ({ data, size = 170, cx = 81, cy = 81, innerRadius = 48, ou
   const gapAngle = (40 / (2 * Math.PI * r)) * 360;
   let angle = 90;
   return (
-    <svg width={size} height={size}>
-      {data.map((d) => {
-        const sweep = (d.pct / total) * 360 - gapAngle;
-        const start = angle;
-        angle += sweep + gapAngle;
-        const endA = start + sweep;
-        const toRad = (a) => (a * Math.PI) / 180;
-        const x1 = cx + r * Math.cos(toRad(start));
-        const y1 = cy - r * Math.sin(toRad(start));
-        const x2 = cx + r * Math.cos(toRad(endA));
-        const y2 = cy - r * Math.sin(toRad(endA));
-        const large = (endA - start) > 180 ? 1 : 0;
-        return (
-          <path
-            key={d.name}
-            d={`M${x1},${y1} A${r},${r} 0 ${large},0 ${x2},${y2}`}
-            fill="none"
-            stroke={d.color}
-            strokeWidth={sw}
-            strokeLinecap="round"
-          />
-        );
-      })}
-    </svg>
+    <div style={{ width: size, height: size }}>
+      <svg width={size} height={size}>
+        {data.map((d, idx) => {
+          const sweep = (d.pct / total) * 360 - gapAngle;
+          const start = angle;
+          angle += sweep + gapAngle;
+          const endA = start + sweep;
+          const toRad = (a) => (a * Math.PI) / 180;
+          const x1 = cx + r * Math.cos(toRad(start));
+          const y1 = cy - r * Math.sin(toRad(start));
+          const x2 = cx + r * Math.cos(toRad(endA));
+          const y2 = cy - r * Math.sin(toRad(endA));
+          const large = (endA - start) > 180 ? 1 : 0;
+          const arcLen = (sweep / 360) * circ;
+          return (
+            <path
+              key={d.name}
+              d={`M${x1},${y1} A${r},${r} 0 ${large},0 ${x2},${y2}`}
+              fill="none"
+              stroke={d.color}
+              strokeWidth={sw}
+              strokeLinecap="round"
+              strokeDasharray={`${arcLen} ${circ}`}
+              strokeDashoffset={animate ? 0 : arcLen}
+              style={{ transition: `stroke-dashoffset 0.9s ease ${idx * 0.08}s` }}
+            />
+          );
+        })}
+      </svg>
+    </div>
+  );
+};
+
+const AnimatedNumber = ({ target, prefix = '', suffix = '' }) => {
+  const [count, setCount] = useState(Math.max(0, target - 20));
+
+  useEffect(() => {
+    const start = Math.max(0, target - 20);
+    let current = start;
+    const increment = Math.max(1, Math.ceil((target - start) / 20));
+    setCount(current);
+    const interval = window.setInterval(() => {
+      current = Math.min(target, current + increment);
+      setCount(current);
+      if (current >= target) {
+        window.clearInterval(interval);
+      }
+    }, 50);
+    return () => window.clearInterval(interval);
+  }, [target]);
+
+  return (
+    <span>{prefix}{new Intl.NumberFormat().format(count)}{suffix}</span>
   );
 };
 
@@ -247,7 +276,7 @@ const ChartTip = ({ active, payload, label }) => {
 };
 
 // ─── Stat card ────────────────────────────────────────────
-const StatCard = ({ label, value, pct, pctColor = C.emerald, right, iconBg = '#F1F5F9', icon }) => (
+const StatCard = ({ label, value, prefix = '', suffix = '', animated = false, pct, pctColor = C.emerald, right, iconBg = '#F1F5F9', icon }) => (
   <div
     style={{ background: C.cardBg, borderRadius: 16, padding: '24px 18px', border: `1px solid ${C.border}`, flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20, transition: 'box-shadow 0.2s, transform 0.2s', cursor: 'default' }}
     onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(74,127,229,0.13)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
@@ -259,11 +288,20 @@ const StatCard = ({ label, value, pct, pctColor = C.emerald, right, iconBg = '#F
       <div style={{ width: 38, height: 38, borderRadius: '50%', background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {icon}
       </div>
+
     </div>
     {/* Row 2: value+pct (50%) + graph (50%) */}
     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
       <div style={{ width: '50%', display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <span style={{ fontSize: 26, fontWeight: 800, color: C.textDark, letterSpacing: '-0.5px', lineHeight: 1 }}>{value}</span>
+        <span style={{ fontSize: 26, fontWeight: 800, color: C.textDark, letterSpacing: '-0.5px', lineHeight: 1 }}>
+          {animated && typeof value === 'number' ? (
+            <AnimatedNumber target={value} prefix={prefix} suffix={suffix} />
+          ) : typeof value === 'number' ? (
+            `${prefix}${new Intl.NumberFormat().format(value)}${suffix}`
+          ) : (
+            value
+          )}
+        </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 600, color: pctColor }}>
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
             <path d="M18 15l-6-6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
@@ -338,8 +376,21 @@ const IcoDrSmall = () => (
 // ─── Main ─────────────────────────────────────────────────
 export default function DashboardPage() {
   const [tab, setTab] = useState('Month');
+  const [ready, setReady] = useState(false);
+  const [chartDataState, setChartDataState] = useState([]);
   const data = chartData[tab];
   const hiIdx = HIGHLIGHT_IDX[tab];
+
+  useEffect(() => {
+    setReady(false);
+    setChartDataState([]);
+    const timer = window.setTimeout(() => {
+      setChartDataState(chartData[tab]);
+      setReady(true);
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [tab]);
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
@@ -349,36 +400,41 @@ export default function DashboardPage() {
 
         <StatCard
           label="Total Members"
-          value="3,549"
+          value={3549}
           pct="31% this month"
           icon={<IcoUsers />}
           iconBg="#E2E8F0"
           right={<SparkBars vals={[8,12,10,16,13,18,15]} />}
+          animated
         />
         <StatCard
           label="Active Members"
-          value="2,847"
+          value={2847}
           pct="18% this month"
           icon={<IcoUserCheck />}
           iconBg="#E2E8F0"
           right={<SparkArea vals={[10,14,12,16,18,15,20,22,19,24,21,26]} />}
+          animated
         />
         <StatCard
           label="Non Active Members"
-          value="702"
+          value={702}
           pct="8% this month"
           pctColor={C.red}
           icon={<IcoUserX />}
           iconBg="#E2E8F0"
           right={<SparkBarsGray vals={[14,10,18,12,16,8,20]} />}
+          animated
         />
         <StatCard
           label="New Invites (last 30 days)"
-          value="+1,537"
+          value={1537}
+          prefix="+"
           pct="13% this month"
           icon={<IcoUserPlus />}
           iconBg="#E2E8F0"
           right={<SparkArc pct={80} />}
+          animated
         />
       </div>
 
@@ -410,14 +466,14 @@ export default function DashboardPage() {
           </div>
           <div style={{ flex: 1, minHeight: 0 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} barSize={tab === 'Month' ? 26 : 34} margin={{ top: 10, right: 2, left: -22, bottom: 10 }} barCategoryGap="35%">
+            <BarChart data={ready ? chartDataState : []} barSize={tab === 'Month' ? 26 : 34} margin={{ top: 10, right: 2, left: -22, bottom: 10 }} barCategoryGap="35%">
               <CartesianGrid vertical={false} stroke="#F1F5F9" strokeDasharray="0" />
               <XAxis dataKey="n" axisLine={false} tickLine={false} tick={{ fontSize: 10.5, fill: '#94A3B8', fontFamily: 'Inter' }} height={22} />
               <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10.5, fill: '#94A3B8', fontFamily: 'Inter' }} tickFormatter={(v) => `${v/1000 >= 1 ? v/1000+'k' : v}`} />
               <Tooltip content={<ChartTip />} cursor={false} />
               {/* Single value bar only — no background track */}
-              <Bar dataKey="v" shape={<RBar />} isAnimationActive={false}>
-                {data.map((_, i) => (
+              <Bar dataKey="v" shape={<RBar />} animationBegin={80} animationDuration={1000} animationEasing="ease-out" isAnimationActive={ready}>
+                {(ready ? chartDataState : []).map((_, i) => (
                   <Cell key={i} fill={i === hiIdx ? '#4A7FE5' : '#86EFAC'} />
                 ))}
               </Bar>
@@ -433,7 +489,7 @@ export default function DashboardPage() {
           {/* Donut + legend side by side */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
             <div style={{ position: 'relative', flexShrink: 0, width: '50%', display: 'flex', justifyContent: 'center' }}>
-              <RoundedDonut data={donutData} size={220} cx={106} cy={106} innerRadius={64} outerRadius={100} />
+              <RoundedDonut data={donutData} size={220} cx={106} cy={106} innerRadius={64} outerRadius={100} animate={ready} />
               <div style={{
                 position: 'absolute', top: '50%', left: '50%',
                 transform: 'translate(-50%,-50%)',
