@@ -5,41 +5,66 @@ export default {
   theme: {
     extend: {
       colors: {
+        // ── Brand Blue (dashboard primary) ──
         primary: {
-          DEFAULT: '#5B8DEF',
-          light:   '#7BA7F7',
-          dark:    '#3B6FD4',
+          DEFAULT: '#5060A8',
+          light:   '#7B8DC4',
+          lighter: '#D6DAF5',
+          dark:    '#3D4E8A',
+          darker:  '#2C3A6E',
         },
-        secondary: {
-          DEFAULT: '#6366F1',
-          light:   '#818CF8',
-          dark:    '#4F46E5',
-        },
+        // ── Success / Green ──
         success: {
-          DEFAULT: '#22C55E',
-          light:   '#4ADE80',
-          dark:    '#16A34A',
+          DEFAULT: '#7DC4A0',
+          light:   '#C3EDD8',
+          lighter: '#EDFAF3',
+          dark:    '#4A9E72',
         },
-        warning: {
-          DEFAULT: '#F59E0B',
-          light:   '#FCD34D',
-          dark:    '#D97706',
-        },
+        // ── Danger / Red ──
         danger: {
-          DEFAULT: '#EF4444',
-          light:   '#FCA5A5',
-          dark:    '#DC2626',
+          DEFAULT: '#D48A8A',
+          light:   '#FAD0D0',
+          lighter: '#FEF2F2',
+          dark:    '#B85555',
         },
+        // ── Warning / Amber ──
+        warning: {
+          DEFAULT: '#E8C97A',
+          light:   '#FAE5B0',
+          lighter: '#FEF9EC',
+          dark:    '#C9A030',
+        },
+        // ── Purple / Accent ──
+        accent: {
+          DEFAULT: '#A89FD4',
+          light:   '#D6D2F0',
+          lighter: '#F0EFFE',
+          dark:    '#7C6FBF',
+        },
+        // ── Neutral / Surface ──
         surface: {
           DEFAULT: '#FFFFFF',
           muted:   '#F8FAFC',
-          border:  '#E2E8F0',
+          subtle:  '#F1F5F9',
+          border:  '#E8EDF5',
+          borderDark: '#D0DEFA',
         },
+        // ── Page background ──
+        page: {
+          DEFAULT: '#dde1f0',
+        },
+        // ── Text ──
         text: {
-          primary:   '#0F172A',
-          secondary: '#475569',
+          primary:   '#1C2B4A',
+          secondary: '#64748B',
           muted:     '#94A3B8',
           inverse:   '#FFFFFF',
+        },
+        // ── Donut / Status ──
+        status: {
+          active:   '#7DC4A0',
+          inactive: '#D48A8A',
+          pending:  '#E8C97A',
         },
       },
       fontFamily: {
@@ -56,18 +81,22 @@ export default {
         'caption':    ['0.75rem',  { lineHeight: '1.25rem' }],
       },
       spacing: {
-        sidebar:         '16rem',
+        sidebar:             '16rem',
         'sidebar-collapsed': '4.5rem',
-        topbar:          '4rem',
+        topbar:              '4rem',
       },
       boxShadow: {
-        card:   '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
-        panel:  '0 4px 6px -1px rgba(0,0,0,0.07)',
-        modal:  '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
+        card:     '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+        panel:    '0 4px 6px -1px rgba(0,0,0,0.07)',
+        modal:    '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
         dropdown: '0 10px 15px -3px rgba(0,0,0,0.08)',
+        blue:     '0 2px 8px rgba(74,127,229,0.25)',
+        card_hover: '0 8px 32px rgba(74,127,229,0.13)',
       },
       borderRadius: {
         card: '0.75rem',
+        xl2: '1rem',
+        xl3: '1.25rem',
       },
       screens: {
         xs: '475px',

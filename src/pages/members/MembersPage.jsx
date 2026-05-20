@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Dropdown from '@components/shared/Dropdown';
 
 const C = {
   blue:      '#4A7FE5',
@@ -52,12 +53,6 @@ const STATUSES = ['All Status', 'Active', 'Pending', 'Inactive'];
 const SORTS    = ['Newest First', 'Oldest First', 'Name A–Z', 'Name Z–A'];
 const PER_PAGE_OPTIONS = [5, 10, 20];
 
-const Sel = ({ value, onChange, options, style = {} }) => (
-  <select value={value} onChange={e => onChange(e.target.value)}
-    style={{ padding: '7px 10px', borderRadius: 9, border: `1px solid ${C.border}`, fontSize: 13, color: C.textDark, background: C.cardBg, cursor: 'pointer', outline: 'none', fontWeight: 500, ...style }}>
-    {options.map(o => <option key={o}>{o}</option>)}
-  </select>
-);
 
 export default function MembersPage() {
   const [search,   setSearch]   = useState('');
@@ -133,10 +128,10 @@ export default function MembersPage() {
         </div>
 
         {/* Filters — grouped section */}
-        <div style={{ display: 'flex', alignItems: 'center', height: 50, background: '#fff', borderRadius: 11, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-          <Sel value={status} onChange={reset(setStatus)} options={STATUSES} style={{ height: '100%', padding: '0 10px', borderRadius: 0, background: '#fff', border: 'none', borderRight: `1px solid ${C.border}` }} />
-          <Sel value={group}  onChange={reset(setGroup)}  options={GROUPS}   style={{ height: '100%', padding: '0 10px', borderRadius: 0, background: '#fff', border: 'none', borderRight: `1px solid ${C.border}` }} />
-          <Sel value={sort}   onChange={reset(setSort)}   options={SORTS}    style={{ height: '100%', padding: '0 10px', borderRadius: 0, background: '#fff', border: 'none' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Dropdown value={status} onChange={reset(setStatus)} options={STATUSES} height={50} minWidth={140} />
+          <Dropdown value={group}  onChange={reset(setGroup)}  options={GROUPS}   height={50} minWidth={160} />
+          <Dropdown value={sort}   onChange={reset(setSort)}   options={SORTS}    height={50} minWidth={160} searchable={false} />
         </div>
 
         {/* Export */}
@@ -241,7 +236,7 @@ export default function MembersPage() {
         {/* Col 1: rows per page */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 13, color: C.textMid }}>Rows per page</span>
-          <Sel value={String(perPage)} onChange={v => { setPerPage(Number(v)); setPage(1); }} options={PER_PAGE_OPTIONS.map(String)} style={{ padding: '5px 8px' }} />
+          <Dropdown value={String(perPage)} onChange={v => { setPerPage(Number(v)); setPage(1); }} options={PER_PAGE_OPTIONS.map(String)} height={36} minWidth={80} searchable={false} />
         </div>
 
         {/* Col 2: page info */}

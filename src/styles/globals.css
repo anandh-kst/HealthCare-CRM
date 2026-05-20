@@ -40,4 +40,13 @@
   .page-container {
     @apply max-w-7xl mx-auto w-full;
   }
+
+  /* ── Global card title ── */
+  .card-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #1C2B4A;
+    letter-spacing: -0.2px;
+    line-height: 1.4;
+  }
 }

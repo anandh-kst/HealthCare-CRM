@@ -74,6 +74,24 @@ const IconSettings = () => (
   </svg>
 );
 
+const IconBilling = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <rect x="2" y="5" width="20" height="14" rx="2.5" stroke="currentColor" strokeWidth="2.2"/>
+    <path d="M2 10h20" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+    <path d="M6 15h4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+  </svg>
+);
+const IconMessages = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+const IconAnalytics = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"/>
+  </svg>
+);
+
 // ── Shared card style ─────────────────────────────────────
 const card = {
   background: '#FFFFFF',
@@ -93,7 +111,10 @@ const mainNav = [
   { path: '#lab',              icon: <IconLab />,          label: 'Lab' },
   { path: '#reports',          icon: <IconReports />,      label: 'Reports' },
   { path: '#pharmacy',         icon: <IconPharmacy />,     label: 'Pharmacy' },
-]; // 7 items + 1 toggle = 8 total in card
+  { path: '#billing',          icon: <IconBilling />,      label: 'Billing' },
+  { path: '#messages',         icon: <IconMessages />,     label: 'Messages' },
+  { path: '#analytics',        icon: <IconAnalytics />,    label: 'Analytics' },
+];
 
 const bottomNav = [
   { icon: <IconBell />,     label: 'Notifications' },
@@ -207,9 +228,9 @@ const Sidebar = () => {
       </div>
 
       {/* ── Card 2: Main nav + toggle ── */}
-      <div style={{ ...card, flex: 1, margin: '14px 0', padding: '10px 8px', justifyContent: 'space-between', gap: 0 }}>
-        {/* nav items */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
+      <div style={{ ...card, flex: 1, margin: '14px 0', padding: '10px 8px', justifyContent: 'space-between', gap: 0, overflow: 'hidden' }}>
+        {/* nav items — scrollable */}
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: 2, width: '100%', scrollbarWidth: 'none' }}>
           {mainNav.map((item, i) => <NavItem key={i} {...item} expanded={expanded} settled={settled} mounted={mounted} />)}
         </div>
 

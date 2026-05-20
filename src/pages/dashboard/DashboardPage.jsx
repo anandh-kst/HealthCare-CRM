@@ -5,23 +5,26 @@ import {
   AreaChart, Area, LineChart, Line, RadialBarChart, RadialBar,
 } from 'recharts';
 
-// ─── Exact colors from screenshot ────────────────────────
+// ─── Design tokens (mirrors tailwind.config.js) ─────────
 const C = {
-  navy:        '#1C2B4A',
-  blue:        '#4A7FE5',
-  blueLight:   '#EEF3FD',
-  green:       '#4ADE80',
-  greenBar:    '#BBF7D0',
-  greenBarAct: '#4ADE80',
-  blueBar:     '#4A7FE5',
-  textDark:    '#1C2B4A',
-  textMid:     '#64748B',
-  textLight:   '#94A3B8',
-  border:      '#E8EDF5',
-  cardBg:      '#FFFFFF',
-  pageBg:      '#EEF2F8',
-  emerald:     '#10B981',
-  red:         '#F87171',
+  navy:        '#1C2B4A',   // text.primary
+  blue:        '#5060A8',   // primary.DEFAULT
+  blueLight:   '#D6DAF5',   // primary.lighter
+  blueMuted:   '#7B8DC4',   // primary.light
+  green:       '#7DC4A0',   // success.DEFAULT
+  greenLight:  '#C3EDD8',   // success.light
+  red:         '#D48A8A',   // danger.DEFAULT
+  redLight:    '#FAD0D0',   // danger.light
+  amber:       '#E8C97A',   // warning.DEFAULT
+  amberLight:  '#FAE5B0',   // warning.light
+  purple:      '#A89FD4',   // accent.DEFAULT
+  textDark:    '#1C2B4A',   // text.primary
+  textMid:     '#64748B',   // text.secondary
+  textLight:   '#94A3B8',   // text.muted
+  border:      '#E8EDF5',   // surface.border
+  cardBg:      '#FFFFFF',   // surface.DEFAULT
+  pageBg:      '#dde1f0',   // page.DEFAULT
+  emerald:     '#7DC4A0',   // success.DEFAULT
 };
 
 // ─── Mock data ────────────────────────────────────────────
@@ -46,9 +49,9 @@ const chartData = {
 const HIGHLIGHT_IDX = { Week: 3, Month: 9, Year: 3 };
 
 const donutData = [
-  { name: 'Active',   pct: 45, color: '#34D399' },
-  { name: 'Inactive', pct: 30, color: '#F87171' },
-  { name: 'Pending',  pct: 25, color: '#FBBF24' },
+  { name: 'Active',   pct: 45, color: '#7DC4A0' },
+  { name: 'Inactive', pct: 30, color: '#D48A8A' },
+  { name: 'Pending',  pct: 25, color: '#E8C97A' },
 ];
 
 const challenges = [
@@ -84,7 +87,7 @@ const SparkBars = ({ vals = [] }) => {
         <div key={i} style={{
           width: 6, flexShrink: 0, borderRadius: 4,
           height: `${Math.max(15, (v / max) * 100)}%`,
-          background: v === max ? 'rgba(74,127,229,0.5)' : 'rgba(74,222,128,0.45)',
+          background: v === max ? '#7BA7D4' : '#7DC4A0',
         }} />
       ))}
     </div>
@@ -99,11 +102,11 @@ const SparkArea = ({ vals = [] }) => {
         <AreaChart data={d} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#818CF8" stopOpacity={0.2} />
-              <stop offset="100%" stopColor="#818CF8" stopOpacity={0.02} />
+              <stop offset="0%" stopColor="#7BA7D4" stopOpacity={0.4} />
+              <stop offset="100%" stopColor="#7BA7D4" stopOpacity={0.05} />
             </linearGradient>
           </defs>
-          <Area type="monotone" dataKey="v" stroke="rgba(129,140,248,0.5)" strokeWidth={2}
+          <Area type="monotone" dataKey="v" stroke="#7BA7D4" strokeWidth={2}
             fill="url(#areaGrad)" dot={false} isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
@@ -119,7 +122,7 @@ const SparkBarsGray = ({ vals = [] }) => {
         const pct = Math.max(15, (v / max) * 100);
         return (
           <div key={i} style={{ width: 6, flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', borderRadius: 4, overflow: 'hidden', background: 'rgba(241,245,249,0.7)' }}>
-            <div style={{ height: `${pct}%`, background: v >= 30 ? 'rgba(74,222,128,0.5)' : 'rgba(248,113,113,0.45)', borderRadius: 4 }} />
+            <div style={{ height: `${pct}%`, background: v >= 30 ? '#7DC4A0' : '#D48A8A', borderRadius: 4 }} />
           </div>
         );
       })}
@@ -154,7 +157,7 @@ const SparkArc = ({ pct = 80 }) => {
           fill="none" stroke="#E2E8F0" strokeWidth={sw} strokeLinecap="butt" opacity={0.5} />
         {/* colored fill using dasharray — same path, no gap */}
         <path d={`M${sx},${sy} A${r},${r} 0 0,1 ${ex},${ey}`}
-          fill="none" stroke="#818CF8" strokeWidth={sw} strokeLinecap="butt" opacity={0.45}
+          fill="none" stroke="#A89FD4" strokeWidth={sw} strokeLinecap="butt" opacity={0.6}
           strokeDasharray={`${fillLen} ${arcLen}`} />
         {/* needle */}
         <line x1={cx} y1={cy} x2={needleX} y2={needleY} stroke="#475569" strokeWidth="2.5" strokeLinecap="round" opacity={0.5} />
@@ -284,7 +287,7 @@ const StatCard = ({ label, value, prefix = '', suffix = '', animated = false, pc
   >
     {/* Row 1: title + icon */}
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <span style={{ fontSize: 13.5, fontWeight: 600, color: C.textMid }}>{label}</span>
+      <span className="card-title">{label}</span>
       <div style={{ width: 38, height: 38, borderRadius: '50%', background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {icon}
       </div>
@@ -393,7 +396,7 @@ export default function DashboardPage() {
 
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%', padding: '8px 0 16px' }}>
 
       {/* ── Row 1: 4 stat cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
@@ -403,7 +406,7 @@ export default function DashboardPage() {
           value={3549}
           pct="31% this month"
           icon={<IcoUsers />}
-          iconBg="#E2E8F0"
+          iconBg="#D6E4FA"
           right={<SparkBars vals={[8,12,10,16,13,18,15]} />}
           animated
         />
@@ -412,7 +415,7 @@ export default function DashboardPage() {
           value={2847}
           pct="18% this month"
           icon={<IcoUserCheck />}
-          iconBg="#E2E8F0"
+          iconBg="#C3EDD8"
           right={<SparkArea vals={[10,14,12,16,18,15,20,22,19,24,21,26]} />}
           animated
         />
@@ -422,7 +425,7 @@ export default function DashboardPage() {
           pct="8% this month"
           pctColor={C.red}
           icon={<IcoUserX />}
-          iconBg="#E2E8F0"
+          iconBg="#FAD0D0"
           right={<SparkBarsGray vals={[14,10,18,12,16,8,20]} />}
           animated
         />
@@ -432,7 +435,7 @@ export default function DashboardPage() {
           prefix="+"
           pct="13% this month"
           icon={<IcoUserPlus />}
-          iconBg="#E2E8F0"
+          iconBg="#FAE5B0"
           right={<SparkArc pct={80} />}
           animated
         />
@@ -444,7 +447,7 @@ export default function DashboardPage() {
         {/* Bar chart card */}
         <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px 0', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexShrink: 0 }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: C.textDark }}>Member Growth Trends</span>
+            <span className="card-title">Member Growth Trends</span>
             {/* Tab switcher */}
             <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 10, padding: 3, gap: 2 }}>
               {['Week', 'Month', 'Year'].map((t) => (
@@ -474,7 +477,7 @@ export default function DashboardPage() {
               {/* Single value bar only — no background track */}
               <Bar dataKey="v" shape={<RBar />} animationBegin={80} animationDuration={1000} animationEasing="ease-out" isAnimationActive={ready}>
                 {(ready ? chartDataState : []).map((_, i) => (
-                  <Cell key={i} fill={i === hiIdx ? '#4A7FE5' : '#86EFAC'} />
+                  <Cell key={i} fill={i === hiIdx ? '#7BA7D4' : '#7DC4A0'} />
                 ))}
               </Bar>
             </BarChart>
@@ -484,7 +487,7 @@ export default function DashboardPage() {
 
         {/* Donut card */}
         <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: C.textDark, marginBottom: 12 }}>Member Status Distribution</span>
+          <span className="card-title" style={{ marginBottom: 12 }}>Member Status Distribution</span>
 
           {/* Donut + legend side by side */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
@@ -533,7 +536,7 @@ export default function DashboardPage() {
       {/* ── Row 3: Upcoming Challenges ── */}
       <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}`, marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 15, fontWeight: 700, color: C.textDark }}>Upcoming Challenges</span>
+          <span className="card-title">Upcoming Challenges</span>
           <button style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: C.blue, background: 'none', border: 'none', cursor: 'pointer' }}>
             View all
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
