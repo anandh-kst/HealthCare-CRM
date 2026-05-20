@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import care200Logo from '@assets/images/care200.png';
 import { ROUTES } from '@constants/routes.constants';
@@ -93,90 +93,159 @@ const mainNav = [
   { path: '#lab',              icon: <IconLab />,          label: 'Lab' },
   { path: '#reports',          icon: <IconReports />,      label: 'Reports' },
   { path: '#pharmacy',         icon: <IconPharmacy />,     label: 'Pharmacy' },
-  { path: '#profile',          icon: <IconProfile />,      label: 'Profile' },
-];
+]; // 7 items + 1 toggle = 8 total in card
 
 const bottomNav = [
   { icon: <IconBell />,     label: 'Notifications' },
   { icon: <IconSettings />, label: 'Settings' },
 ];
 
-// ── NavItem: circular icon that changes bg on hover/active ──
-const NavItem = ({ path, icon, label, isBtn = false, onClick }) => {
-  const [hovered, setHovered] = React.useState(false);
+// ── NavItem ───────────────────────────────────────────────
+const NavItem = ({ path, icon, label, expanded, settled, mounted, isBtn = false }) => {
+  const isHash = path?.startsWith('#');
 
-  const iconBox = (isActive) => ({
-    width: 42, height: 42, borderRadius: '50%',
-    background: isActive ? '#3B6FD4' : hovered ? '#DBEAFE' : '#FFFFFF',
-    boxShadow: isActive ? '0 2px 8px rgba(59,111,212,0.3)' : '0 1px 4px rgba(0,0,0,0.08)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: isActive ? '#FFFFFF' : hovered ? '#4A7FE5' : '#94A3B8',
-    transition: 'all .18s',
-    flexShrink: 0,
-    cursor: 'pointer',
-    border: 'none',
-  });
+      const row = (isActive) => (
+    <div style={{
+      display: 'flex', alignItems: 'center',
+      justifyContent: settled ? 'flex-start' : 'center',
+      gap: 10,
+      width: '100%',
+      padding: '5px 4px',
+      borderRadius: 12,
+      cursor: 'pointer',
+      transition: 'background .15s',
+    }}>
+      {/* icon circle */}
+      <div style={{
+        width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+        background: isActive ? '#4A7FE5' : '#F1F5F9',
+        boxShadow: isActive ? '0 3px 10px rgba(74,127,229,0.3)' : '0 1px 3px rgba(0,0,0,0.06)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: isActive ? '#fff' : '#94A3B8',
+        transition: 'all .18s',
+      }}>
+        {icon}
+      </div>
+      {/* label — only when expanded */}
+      {expanded && (
+        <span style={{
+          fontSize: 13.5, fontWeight: isActive ? 700 : 500,
+          color: isActive ? '#1C2B4A' : '#64748B',
+          whiteSpace: 'nowrap',
+          opacity: expanded ? 1 : 0,
+          transition: mounted ? 'opacity .15s .1s' : 'none',
+          overflow: 'hidden',
+        }}>
+          {label}
+        </span>
+      )}
+    </div>
+  );
 
   if (isBtn) return (
     <button
-      title={label}
-      style={iconBox(false)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={onClick}
+      title={!expanded ? label : undefined}
+      style={{ background: 'none', border: 'none', width: '100%', padding: 0, cursor: 'pointer', textAlign: 'left' }}
     >
-      {icon}
+      {row(false)}
     </button>
   );
 
   return (
     <NavLink
-      to={path.startsWith('#') ? '#' : path}
-      onClick={(e) => path.startsWith('#') && e.preventDefault()}
-      title={label}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      to={isHash ? '#' : path}
+      onClick={(e) => isHash && e.preventDefault()}
+      title={!expanded ? label : undefined}
+      style={{ width: '100%', textDecoration: 'none', display: 'block' }}
     >
-      {({ isActive }) => (
-        <div style={iconBox(isActive && !path.startsWith('#'))}>{icon}</div>
-      )}
+      {({ isActive }) => row(isActive && !isHash)}
     </NavLink>
   );
 };
 
-const Sidebar = ({ title }) => (
-  <div
-    style={{
-      width: 72,
-      flexShrink: 0,
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      padding: '12px 0 12px 16px',
-      background: 'transparent',
-      boxSizing: 'border-box',
-    }}
-  >
-    {/* ── Card 1: Logo ── */}
-    <div style={{ ...card, flexShrink: 0, padding: '10px' }}>
-      <img
-        src={care200Logo}
-        alt="Care200"
-        style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8 }}
-      />
-    </div>
+const Sidebar = () => {
+  const [expanded, setExpanded] = useState(false);
+  const [settled, setSettled] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const W = expanded ? 210 : 72;
 
-    {/* ── Card 2: Main nav ── */}
-    <div style={{ ...card, flexShrink: 0, gap: 6 }}>
-      {mainNav.map((item, i) => <NavItem key={i} {...item} />)}
-    </div>
+  useEffect(() => { setMounted(true); }, []);
 
-    {/* ── Card 3: Bottom icons ── */}
-    <div style={{ ...card, flexShrink: 0, gap: 6 }}>
-      {bottomNav.map((item, i) => <NavItem key={i} {...item} isBtn />)}
+  const toggle = () => {
+    if (expanded) {
+      setExpanded(false);
+      setTimeout(() => setSettled(false), 250);
+    } else {
+      setExpanded(true);
+      setSettled(true);
+    }
+  };
+
+  return (
+    <div style={{
+      width: W, flexShrink: 0, height: '100vh',
+      display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+      padding: '12px 0 12px 12px',
+      background: 'transparent', boxSizing: 'border-box',
+      overflow: 'hidden',
+      transition: 'width .25s cubic-bezier(.4,0,.2,1)',
+    }}>
+
+      {/* ── Card 1: Logo ── */}
+      <div style={{ ...card, flexShrink: 0, padding: '10px', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: settled ? 'flex-start' : 'center', gap: 10, width: '100%' }}>
+          <img src={care200Logo} alt="Care200"
+            style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8, flexShrink: 0 }}
+          />
+          {expanded && (
+            <div style={{ opacity: expanded ? 1 : 0, transition: 'opacity .15s .15s', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#1C2B4A', letterSpacing: '-0.3px', lineHeight: 1.2 }}>Care200</div>
+              <div style={{ fontSize: 10.5, color: '#94A3B8', fontWeight: 500 }}>Healthcare</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Card 2: Main nav + toggle ── */}
+      <div style={{ ...card, flex: 1, margin: '14px 0', padding: '10px 8px', justifyContent: 'space-between', gap: 0 }}>
+        {/* nav items */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
+          {mainNav.map((item, i) => <NavItem key={i} {...item} expanded={expanded} settled={settled} mounted={mounted} />)}
+        </div>
+
+        {/* toggle button */}
+        <button
+          onClick={() => toggle()}
+          title={expanded ? 'Collapse' : 'Expand'}
+          style={{
+            marginTop: 10, width: '100%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            padding: '8px 0', borderRadius: 12,
+            border: '1.5px dashed #E2E8F0',
+            background: 'transparent', cursor: 'pointer',
+            color: '#94A3B8', fontSize: 11.5, fontWeight: 600,
+            transition: 'all .15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = '#4A7FE5'; e.currentTarget.style.color = '#4A7FE5'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.color = '#94A3B8'; }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            {expanded
+              ? <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              : <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            }
+          </svg>
+          {expanded && <span>Collapse</span>}
+        </button>
+      </div>
+
+      {/* ── Card 3: Bottom icons ── */}
+      <div style={{ ...card, flexShrink: 0, padding: '10px 8px', gap: 4 }}>
+        {bottomNav.map((item, i) => <NavItem key={i} {...item} expanded={expanded} settled={settled} mounted={mounted} isBtn />)}
+      </div>
+
     </div>
-  </div>
-);
+  );
+};
 
 export default Sidebar;

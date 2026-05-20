@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import ErrorBoundary from '@components/shared/ErrorBoundary';
+import CareBot from '@components/shared/CareBot';
 
 const pageTitles = {
   '/dashboard':    'Dashboard',
@@ -17,7 +18,7 @@ const DashboardLayout = () => {
   return (
     <div
       className="flex h-screen overflow-hidden"
-      style={{ background: '#E2E8F0' }}
+      style={{ background: '#dde1f0' }}
     >
       {/* Sidebar — floating card with built-in gap */}
       <Sidebar />
@@ -34,6 +35,9 @@ const DashboardLayout = () => {
           </ErrorBoundary>
         </main>
       </div>
+
+      {/* Care Bot — fixed FAB, available on all screens */}
+      <CareBot />
     </div>
   );
 };

@@ -2,21 +2,23 @@ import { useState } from 'react';
 
 const C = {
   blue:      '#4A7FE5',
-  green:     '#10B981',
-  greenLight:'#ECFDF5',
-  greenHeader:'#D1FAE8',
+  blueDark:  '#3B6FD4',
+  blueLight: '#EEF3FD',
   textDark:  '#1C2B4A',
   textMid:   '#64748B',
   textLight: '#94A3B8',
   border:    '#E8EDF5',
   cardBg:    '#FFFFFF',
-  red:       '#F87171',
+  pageBg:    '#F8FAFC',
+  red:       '#EF4444',
+  rowHover:  '#F8FAFC',
+  theadBg:   '#F8FAFC',
 };
 
 const STATUS_COLORS = {
-  Active:   { bg: '#D1FAE5', color: '#059669' },
-  Pending:  { bg: '#FEF3C7', color: '#D97706' },
-  Inactive: { bg: '#FEE2E2', color: '#DC2626' },
+  Active:   { bg: '#EEF9F4', color: '#16A34A', dot: '#22C55E' },
+  Pending:  { bg: '#FFF8EC', color: '#B45309', dot: '#F59E0B' },
+  Inactive: { bg: '#FEF2F2', color: '#DC2626', dot: '#EF4444' },
 };
 
 const ALL_MEMBERS = [
@@ -109,48 +111,50 @@ export default function MembersPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 ,padding:"10px 0px"}}>
 
-      {/* ── Row 1: Invite + Export ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',padding: '0px 10px' }}>
-        <button style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '12px 20px', borderRadius: 10, border: 'none', background: C.green, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      {/* ── Single Row: Invite + Search + Filters + Export ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+
+        {/* Invite */}
+        <button style={{ display: 'flex', alignItems: 'center', gap: 7, height: 50, padding: '0 18px', borderRadius: 10, border: 'none', background: C.blue, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(74,127,229,0.25)', flexShrink: 0 }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
           </svg>
           Invite Member
         </button>
-        <button style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 20px', borderRadius: 10, border: `1px solid ${C.green}`, background: C.cardBg, fontSize: 13, fontWeight: 600, color: C.green, cursor: 'pointer' }}>
+
+        {/* Search */}
+        <div style={{ flex: 1, height: 50, display: 'flex', alignItems: 'center', gap: 8, background: C.cardBg, borderRadius: 10, padding: '0 14px', border: `1px solid ${C.border}` }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke={C.textLight} strokeWidth="2"/>
+            <path d="M21 21l-4.35-4.35" stroke={C.textLight} strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+          <input value={search} onChange={e => reset(setSearch)(e.target.value)} placeholder="Search members..."
+            style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: C.textDark, width: '100%' }} />
+        </div>
+
+        {/* Filters — grouped section */}
+        <div style={{ display: 'flex', alignItems: 'center', height: 50, background: '#fff', borderRadius: 11, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+          <Sel value={status} onChange={reset(setStatus)} options={STATUSES} style={{ height: '100%', padding: '0 10px', borderRadius: 0, background: '#fff', border: 'none', borderRight: `1px solid ${C.border}` }} />
+          <Sel value={group}  onChange={reset(setGroup)}  options={GROUPS}   style={{ height: '100%', padding: '0 10px', borderRadius: 0, background: '#fff', border: 'none', borderRight: `1px solid ${C.border}` }} />
+          <Sel value={sort}   onChange={reset(setSort)}   options={SORTS}    style={{ height: '100%', padding: '0 10px', borderRadius: 0, background: '#fff', border: 'none' }} />
+        </div>
+
+        {/* Export */}
+        <button style={{ display: 'flex', alignItems: 'center', gap: 7, height: 50, padding: '0 18px', borderRadius: 10, border: `1px solid ${C.border}`, background: C.cardBg, fontSize: 13, fontWeight: 600, color: C.textMid, cursor: 'pointer', flexShrink: 0 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Export
         </button>
-      </div>
 
-      {/* ── Row 2: Search + Filters ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, background: 'transparent', borderRadius: 14, padding: '12px 0' }}>
-        {/* Search box: share width with filters */}
-        <div style={{ width: 350, height: 50, display: 'flex', alignItems: 'center', gap: 8, background: C.cardBg, borderRadius: 10, padding: '0 8px', border: `1px solid ${C.border}` }}>
-          <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
-            <circle cx="11" cy="11" r="7" stroke={C.textLight} strokeWidth="2"/>
-            <path d="M21 21l-4.35-4.35" stroke={C.textLight} strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          <input value={search} onChange={e => reset(setSearch)(e.target.value)} placeholder="Search members..."
-            style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: C.textDark, width: '100%', height: '100%' }} />
-        </div>
-
-        {/* Filters box: share width with search */}
-        <div style={{ width: 400, height: 50, display: 'flex', gap: 8, alignItems: 'center', background: C.cardBg, borderRadius: 10, padding: '8px 8px', border: `1px solid ${C.border}` }}>
-          <Sel value={status} onChange={reset(setStatus)} options={STATUSES} style={{ height: '100%', flex: 1, minWidth: 0, padding: '6px 12px', borderRadius: 8 }} />
-          <Sel value={group}  onChange={reset(setGroup)}  options={GROUPS}  style={{ height: '100%', flex: 1, minWidth: 0, padding: '6px 12px', borderRadius: 8 }} />
-          <Sel value={sort}   onChange={reset(setSort)}   options={SORTS}   style={{ height: '100%', flex: 1, minWidth: 0, padding: '6px 12px', borderRadius: 8 }} />
-        </div>
       </div>
 
       {/* ── Row 3: Table ── */}
       <div style={{ background: C.cardBg, borderRadius: 16, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
         {/* Table head */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2.2fr 1.4fr 1.3fr 1.6fr 1fr 44px', padding: '15px 20px', borderBottom: `1px solid ${C.border}`, background: C.greenHeader }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2.2fr 1.4fr 1.3fr 1.6fr 1fr 44px', padding: '13px 20px', borderBottom: `1px solid #DBEAFE`, background: '#EFF6FF' }}>
           {['Member', 'Group', 'Joined At', 'Invited By', 'Status', ''].map((h, i) => (
-            <span key={i} style={{ fontSize: 11, fontWeight: 700, color: C.textDark, textTransform: 'uppercase', letterSpacing: '0.7px', fontFamily: '"DM Sans", "Inter", system-ui, sans-serif' }}>{h}</span>
+            <span key={i} style={{ fontSize: 11, fontWeight: 700, color: '#3B6FD4', textTransform: 'uppercase', letterSpacing: '0.9px' }}>{h}</span>
           ))}
         </div>
 
@@ -159,7 +163,7 @@ export default function MembersPage() {
         ) : paged.map((m, idx) => (
           <div key={m.id}
             style={{ display: 'grid', gridTemplateColumns: '2.2fr 1.4fr 1.3fr 1.6fr 1fr 44px', alignItems: 'center', padding: '13px 20px', borderBottom: idx < paged.length - 1 ? `1px solid ${C.border}` : 'none', transition: 'background .15s' }}
-            onMouseEnter={e => e.currentTarget.style.background = C.greenLight}
+            onMouseEnter={e => e.currentTarget.style.background = C.rowHover}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
           >
             {/* Member */}
@@ -193,7 +197,14 @@ export default function MembersPage() {
 
             {/* Status */}
             <div>
-              <span style={{ fontSize: 11.5, fontWeight: 600, borderRadius: 20, padding: '4px 11px', background: STATUS_COLORS[m.status].bg, color: STATUS_COLORS[m.status].color }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                fontSize: 11.5, fontWeight: 600, borderRadius: 20,
+                padding: '4px 10px',
+                background: STATUS_COLORS[m.status].bg,
+                color: STATUS_COLORS[m.status].color,
+              }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: STATUS_COLORS[m.status].dot, flexShrink: 0 }} />
                 {m.status}
               </span>
             </div>
@@ -213,7 +224,7 @@ export default function MembersPage() {
                   {['View Profile', 'Edit Member', 'Change Status', 'Remove'].map((action, i) => (
                     <button key={i} onClick={() => setOpenMenu(null)}
                       style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 16px', border: 'none', background: 'none', fontSize: 13, fontWeight: 500, cursor: 'pointer', color: action === 'Remove' ? C.red : C.textDark }}
-                      onMouseEnter={e => e.currentTarget.style.background = C.greenLight}
+                      onMouseEnter={e => e.currentTarget.style.background = C.rowHover}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
                     >{action}</button>
                   ))}
@@ -263,8 +274,8 @@ const PagBtn = ({ label, onClick, disabled, active }) => (
     disabled={disabled}
     style={{
       minWidth: 34, height: 34, padding: '0 10px', borderRadius: 9,
-      border: `1px solid ${active ? C.green : '#E8EDF5'}`,
-      background: active ? C.green : '#FFFFFF',
+      border: `1px solid ${active ? C.blue : '#E8EDF5'}`,
+      background: active ? C.blue : '#FFFFFF',
       fontSize: 13, fontWeight: 600,
       color: active ? '#fff' : disabled ? '#94A3B8' : '#1C2B4A',
       cursor: disabled ? 'default' : 'pointer',
