@@ -33,8 +33,7 @@ const Dropdown = ({
     ? normalised.filter(o => o.label.toLowerCase().includes(query.toLowerCase()))
     : normalised;
 
-  const selected  = normalised.find(o => o.value === value);
-  const isDefault = selected?.value === normalised[0]?.value;
+  const selected = normalised.find(o => o.value === value);
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
@@ -54,7 +53,10 @@ const Dropdown = ({
 
       {/* Trigger */}
       <button
+        type="button"
         onClick={() => setOpen(o => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
         style={{
           height, width: '100%',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
@@ -68,21 +70,21 @@ const Dropdown = ({
         }}
       >
         <span style={{
-          fontSize: 13, fontWeight: isDefault ? 400 : 600,
-          color: isDefault ? '#94A3B8' : '#1C2B4A',
+          fontSize: 14, fontWeight: 600,
+          color: 'rgb(61,61,61)',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
         }}>
           {selected ? selected.label : placeholder}
         </span>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-          style={{ flexShrink: 0, color: '#94A3B8', transition: 'transform .2s', transform: open ? 'rotate(180deg)' : 'rotate(0)' }}>
+          style={{ flexShrink: 0, color: 'rgb(61,61,61)', transition: 'transform .2s', transform: open ? 'rotate(180deg)' : 'rotate(0)' }}>
           <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
 
       {/* Panel */}
       {open && (
-        <div style={{
+        <div role="listbox" style={{
           position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 999,
           background: '#fff',
           border: 'none',
@@ -100,18 +102,18 @@ const Dropdown = ({
                 border: '1px solid #E8EDF5',
               }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <circle cx="11" cy="11" r="7" stroke="#94A3B8" strokeWidth="2"/>
-                  <path d="M21 21l-4.35-4.35" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="11" cy="11" r="7" stroke="rgb(61,61,61)" strokeWidth="2"/>
+                  <path d="M21 21l-4.35-4.35" stroke="rgb(61,61,61)" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
                 <input
                   ref={searchRef}
                   value={query}
                   onChange={e => setQuery(e.target.value)}
                   placeholder="Search..."
-                  style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 12, color: '#1C2B4A', width: '100%' }}
+                  style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: 'rgb(61,61,61)', width: '100%' }}
                 />
                 {query && (
-                  <button onClick={() => setQuery('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#94A3B8', display: 'flex' }}>
+                  <button type="button" onClick={() => setQuery('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'rgb(61,61,61)', display: 'flex' }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
                       <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
@@ -124,12 +126,15 @@ const Dropdown = ({
           {/* Options — max 5 visible */}
           <div style={{ maxHeight: 5 * 38, overflowY: 'auto' }}>
             {filtered.length === 0 ? (
-              <div style={{ padding: '12px 14px', fontSize: 12, color: '#94A3B8', textAlign: 'center' }}>No results</div>
+              <div style={{ padding: '12px 14px', fontSize: 13, color: 'rgb(61,61,61)', textAlign: 'center' }}>No results</div>
             ) : filtered.map(o => {
               const isSel = o.value === value;
               return (
                 <button
+                  type="button"
                   key={o.value}
+                  role="option"
+                  aria-selected={isSel}
                   onClick={() => select(o.value)}
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -137,7 +142,7 @@ const Dropdown = ({
                     background: isSel ? '#ECEEF8' : 'transparent',
                     border: 'none', cursor: 'pointer', textAlign: 'left',
                     fontSize: 13, fontWeight: isSel ? 600 : 400,
-                    color: isSel ? '#5060A8' : '#1C2B4A',
+                    color: 'rgb(61,61,61)',
                     transition: 'background .1s',
                   }}
                   onMouseEnter={e => { if (!isSel) e.currentTarget.style.background = '#F8FAFC'; }}
@@ -146,7 +151,7 @@ const Dropdown = ({
                   {o.label}
                   {isSel && (
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                      <path d="M5 13l4 4L19 7" stroke="#5060A8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M5 13l4 4L19 7" stroke="rgb(61,61,61)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   )}
                 </button>

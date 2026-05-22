@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { FiCalendar, FiCheckCircle, FiMail, FiMoreVertical, FiUser, FiUsers } from 'react-icons/fi';
 import Dropdown from '@components/shared/Dropdown';
 
 const C = {
   blue:      '#4A7FE5',
   blueDark:  '#3B6FD4',
   blueLight: '#EEF3FD',
-  textDark:  '#1C2B4A',
-  textMid:   '#64748B',
-  textLight: '#94A3B8',
+  textDark:  'rgb(61,61,61)',
+  textMid:   'rgb(61,61,61)',
+  textLight: 'rgb(61,61,61)',
   border:    '#E8EDF5',
   cardBg:    '#FFFFFF',
   pageBg:    '#F8FAFC',
@@ -63,45 +64,12 @@ const TABLE_COLUMNS = [
 ];
 
 const HEADER_ICONS = {
-  person: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" stroke="currentColor" strokeWidth="2"/>
-      <path d="M4 20c0-3.31 2.69-6 6-6h4c3.31 0 6 2.69 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  ),
-  group: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-      <path d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3z" stroke="currentColor" strokeWidth="2"/>
-      <path d="M8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3z" stroke="currentColor" strokeWidth="2"/>
-      <path d="M4 19c0-2.21 1.79-4 4-4h8c2.21 0 4 1.79 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  ),
-  calendar: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-      <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="2"/>
-      <path d="M16 3v4M8 3v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      <path d="M4 11h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  ),
-  invite: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" stroke="currentColor" strokeWidth="2"/>
-      <path d="M4 20c0-3.31 2.69-6 6-6h1" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      <path d="M18 15l3 3 3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  ),
-  status: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-      <path d="M12 2l7 4v6c0 5-3.81 9.74-7 10-3.19-.26-7-5-7-10V6l7-4z" stroke="currentColor" strokeWidth="2"/>
-    </svg>
-  ),
-  more: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-      <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
-      <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
-    </svg>
-  ),
+  person: <FiUser size={14} />,
+  group: <FiUsers size={14} />,
+  calendar: <FiCalendar size={14} />,
+  invite: <FiMail size={14} />,
+  status: <FiCheckCircle size={14} />,
+  more: <FiMoreVertical size={14} />,
 };
 
 const SORT_COLUMN_LABELS = {
@@ -136,32 +104,34 @@ export default function MembersPage() {
   const [goTo,     setGoTo]     = useState('');
   const [openMenu, setOpenMenu] = useState(null);
 
-  const filtered = ALL_MEMBERS
-    .filter(m => {
-      const q = search.toLowerCase();
-      return (
-        (m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q)) &&
-        (status === 'All Status' || m.status === status) &&
-        (group  === 'All Groups' || m.group  === group)
-      );
-    })
-    .sort((a, b) => {
-      const aValue = SORT_ACCESSORS[sortKey](a);
-      const bValue = SORT_ACCESSORS[sortKey](b);
-      let result = 0;
+  const filtered = useMemo(() => {
+    const query = search.toLowerCase();
+    return ALL_MEMBERS
+      .filter(m => {
+        return (
+          (m.name.toLowerCase().includes(query) || m.email.toLowerCase().includes(query)) &&
+          (status === 'All Status' || m.status === status) &&
+          (group === 'All Groups' || m.group === group)
+        );
+      })
+      .sort((a, b) => {
+        const aValue = SORT_ACCESSORS[sortKey](a);
+        const bValue = SORT_ACCESSORS[sortKey](b);
+        let result = 0;
 
-      if (aValue instanceof Date && bValue instanceof Date) {
-        result = aValue - bValue;
-      } else {
-        result = aValue.localeCompare(bValue);
-      }
+        if (aValue instanceof Date && bValue instanceof Date) {
+          result = aValue - bValue;
+        } else {
+          result = aValue.localeCompare(bValue);
+        }
 
-      return sortDir === 'asc' ? result : -result;
-    });
+        return sortDir === 'asc' ? result : -result;
+      });
+  }, [search, status, group, sortKey, sortDir]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(filtered.length / perPage)), [filtered.length, perPage]);
   const safePage   = Math.min(page, totalPages);
-  const paged      = filtered.slice((safePage - 1) * perPage, safePage * perPage);
+  const paged      = useMemo(() => filtered.slice((safePage - 1) * perPage, safePage * perPage), [filtered, safePage, perPage]);
 
   const reset = (setter) => (val) => { setter(val); setPage(1); };
 
@@ -182,18 +152,10 @@ export default function MembersPage() {
 
   const handleGoTo = (e) => {
     if (e.key === 'Enter') {
-      const n = parseInt(goTo);
+      const n = parseInt(goTo, 10);
       if (!isNaN(n) && n >= 1 && n <= totalPages) setPage(n);
       setGoTo('');
     }
-  };
-
-  // page numbers with ellipsis
-  const pageNums = () => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    if (safePage <= 3)   return [1, 2, 3, '...', totalPages];
-    if (safePage >= totalPages - 2) return [1, '...', totalPages - 2, totalPages - 1, totalPages];
-    return [1, '...', safePage - 1, safePage, safePage + 1, '...', totalPages];
   };
 
 
@@ -203,22 +165,14 @@ export default function MembersPage() {
       {/* ── Single Row: Invite + Search + Filters + Export ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
 
-        {/* Invite */}
-        <button style={{ display: 'flex', alignItems: 'center', gap: 7, height: 50, padding: '0 18px', borderRadius: 10, border: 'none', background: C.blue, fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(74,127,229,0.25)', flexShrink: 0 }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-          </svg>
-          Invite Member
-        </button>
-
         {/* Search */}
         <div style={{ flex: 1, height: 50, display: 'flex', alignItems: 'center', gap: 8, background: C.cardBg, borderRadius: 10, padding: '0 14px', border: `1px solid ${C.border}` }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-            <circle cx="11" cy="11" r="7" stroke={C.textLight} strokeWidth="2"/>
-            <path d="M21 21l-4.35-4.35" stroke={C.textLight} strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="11" cy="11" r="7" stroke={C.textDark} strokeWidth="2"/>
+            <path d="M21 21l-4.35-4.35" stroke={C.textDark} strokeWidth="2" strokeLinecap="round"/>
           </svg>
           <input value={search} onChange={e => reset(setSearch)(e.target.value)} placeholder="Search members..."
-            style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13, color: C.textDark, width: '100%' }} />
+            style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 14, color: C.textDark, width: '100%' }} />
         </div>
 
         {/* Filters — grouped section */}
@@ -228,8 +182,16 @@ export default function MembersPage() {
           <Dropdown value={sort}   onChange={handleSortChange} options={SORTS}    height={50} minWidth={160} searchable={false} />
         </div>
 
+        {/* Invite */}
+        <button type="button" style={{ display: 'flex', alignItems: 'center', gap: 7, height: 50, padding: '0 18px', borderRadius: 10, border: 'none', background: C.blue, fontSize: 14, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(74,127,229,0.25)', flexShrink: 0 }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+          Invite Member
+        </button>
+
         {/* Export */}
-        <button style={{ display: 'flex', alignItems: 'center', gap: 7, height: 50, padding: '0 18px', borderRadius: 10, border: `1px solid ${C.border}`, background: C.cardBg, fontSize: 13, fontWeight: 600, color: C.textMid, cursor: 'pointer', flexShrink: 0 }}>
+        <button type="button" style={{ display: 'flex', alignItems: 'center', gap: 7, height: 50, padding: '0 18px', borderRadius: 10, border: `1px solid ${C.border}`, background: C.cardBg, fontSize: 14, fontWeight: 700, color: C.textDark, cursor: 'pointer', flexShrink: 0 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
@@ -260,7 +222,7 @@ export default function MembersPage() {
                     style={{
                       padding: '13px 20px',
                       textAlign: col.key === 'actions' ? 'right' : 'left',
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 800,
                       color: C.textDark,
                       textTransform: 'uppercase',
@@ -284,15 +246,15 @@ export default function MembersPage() {
                         margin: 0,
                         textAlign: 'left',
                         color: C.textDark,
-                        fontSize: 11,
+                        fontSize: 14,
                         fontWeight: 800,
                         cursor: col.key === 'actions' ? 'default' : 'pointer',
                         justifyContent: col.key === 'actions' ? 'flex-end' : 'flex-start',
                       }}
                     >
                       {col.icon && <span style={{ display: 'inline-flex', color: C.textDark }}>{HEADER_ICONS[col.icon]}</span>}
-                      <span>{col.label || ''}</span>
-                      {col.key !== 'actions' && <span style={{ fontSize: 10, color: C.textMid }}>{indicator}</span>}
+                        <span>{col.label || ''}</span>
+                      {col.key !== 'actions' && <span style={{ fontSize: 14, color: C.textDark, fontWeight: 700 }}>{indicator}</span>}
                     </button>
                   </th>
                 );
@@ -302,7 +264,7 @@ export default function MembersPage() {
           <tbody>
             {paged.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ padding: '48px 20px', textAlign: 'center', color: C.textLight, fontSize: 13 }}>
+                <td colSpan={6} style={{ padding: '48px 20px', textAlign: 'center', color: C.textDark, fontSize: 14, fontWeight: 700 }}>
                   No members found.
                 </td>
               </tr>
@@ -317,7 +279,7 @@ export default function MembersPage() {
                 onMouseEnter={e => e.currentTarget.style.background = C.rowHover}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <td style={{ padding: '13px 20px', borderRight: `1px solid ${C.border}` }}>
+                <td style={{ padding: '10px 18px', borderRight: `1px solid ${C.border}`, verticalAlign: 'middle' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
                     <div style={{ width: 38, height: 38, borderRadius: '50%', background: m.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                       <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -326,24 +288,26 @@ export default function MembersPage() {
                       </svg>
                     </div>
                     <div>
-                      <div style={{ fontSize: 13.5, fontWeight: 700, color: C.textDark, lineHeight: 1.4 }}>{m.name}</div>
-                      <div style={{ fontSize: 11.5, color: C.textLight, marginTop: 1 }}>{m.email}</div>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: C.textDark, lineHeight: 1.4, textTransform: 'uppercase' }}>{m.name}</div>
+                      <div style={{ fontSize: 14, color: C.textDark, fontWeight: 400, marginTop: 1 }}>{m.email}</div>
                     </div>
                   </div>
                 </td>
-                <td style={{ padding: '13px 20px', borderRight: `1px solid ${C.border}`, fontSize: 13, color: C.textDark, fontWeight: 500 }}>{m.group}</td>
-                <td style={{ padding: '13px 20px', borderRight: `1px solid ${C.border}`, fontSize: 13, color: C.textMid }}>{m.joined}</td>
-                <td style={{ padding: '13px 20px', borderRight: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, color: C.textDark }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="8" r="4" stroke={C.textLight} strokeWidth="2"/>
-                    <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" stroke={C.textLight} strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                  <span>{m.invitedBy}</span>
+                <td style={{ padding: '10px 18px', borderRight: `1px solid ${C.border}`, fontSize: 14, color: C.textDark, fontWeight: 400, verticalAlign: 'middle' }}>{m.group}</td>
+                <td style={{ padding: '10px 18px', borderRight: `1px solid ${C.border}`, fontSize: 14, color: C.textDark, fontWeight: 400, verticalAlign: 'middle' }}>{m.joined}</td>
+                <td style={{ padding: '10px 18px', borderRight: `1px solid ${C.border}`, verticalAlign: 'middle' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 14, color: C.textDark, fontWeight: 400, lineHeight: 1.4 }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ display: 'block' }}>
+                      <circle cx="12" cy="8" r="4" stroke={C.textDark} strokeWidth="2"/>
+                      <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" stroke={C.textDark} strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                    <span style={{ lineHeight: '20px' }}>{m.invitedBy}</span>
+                  </div>
                 </td>
-                <td style={{ padding: '13px 20px', borderRight: `1px solid ${C.border}` }}>
+                <td style={{ padding: '10px 18px', borderRight: `1px solid ${C.border}`, verticalAlign: 'middle' }}>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: 5,
-                    fontSize: 11.5, fontWeight: 600, borderRadius: 20,
+                    fontSize: 14, fontWeight: 400, borderRadius: 20,
                     padding: '4px 10px',
                     background: STATUS_COLORS[m.status].bg,
                     color: STATUS_COLORS[m.status].color,
@@ -352,21 +316,17 @@ export default function MembersPage() {
                     {m.status}
                   </span>
                 </td>
-                <td style={{ padding: '13px 20px', textAlign: 'right' }}>
+                <td style={{ padding: '10px 18px', textAlign: 'right', verticalAlign: 'middle' }}>
                   <div style={{ position: 'relative', display: 'inline-flex' }}>
-                    <button onClick={() => setOpenMenu(openMenu === m.id ? null : m.id)}
+                    <button type="button" onClick={() => setOpenMenu(openMenu === m.id ? null : m.id)}
                       style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, borderRadius: 8, color: C.textDark, display: 'flex', alignItems: 'center' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
-                        <path d="M10 10.5l2 2 2-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12 8v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      </svg>
+                      <FiMoreVertical size={18} />
                     </button>
                     {openMenu === m.id && (
                       <div style={{ position: 'absolute', right: 0, top: 32, zIndex: 10, background: C.cardBg, border: `1px solid ${C.border}`, borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.1)', minWidth: 150, overflow: 'hidden' }}>
                         {['View Profile', 'Edit Member', 'Change Status', 'Remove'].map((action, i) => (
                           <button key={i} onClick={() => setOpenMenu(null)}
-                            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 16px', border: 'none', background: 'none', fontSize: 13, fontWeight: 500, cursor: 'pointer', color: action === 'Remove' ? C.red : C.textDark }}
+                            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 16px', border: 'none', background: 'none', fontSize: 14, fontWeight: 400, cursor: 'pointer', color: action === 'Remove' ? C.red : C.textDark }}
                             onMouseEnter={e => e.currentTarget.style.background = C.rowHover}
                             onMouseLeave={e => e.currentTarget.style.background = 'none'}
                           >{action}</button>
@@ -386,26 +346,25 @@ export default function MembersPage() {
 
         {/* Col 1: rows per page */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 13, color: C.textMid }}>Rows per page</span>
-          <Dropdown value={String(perPage)} onChange={v => { setPerPage(Number(v)); setPage(1); }} options={PER_PAGE_OPTIONS.map(String)} height={36} minWidth={80} searchable={false} />
+          <span style={{ fontSize: 14, color: C.textDark, fontWeight: 700 }}>Rows per page</span>
         </div>
 
         {/* Col 2: page info */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <PagBtn label="Prev" disabled={safePage === 1} onClick={() => setPage(p => p - 1)} />
-          <span style={{ fontSize: 13, color: C.textDark, minWidth: 80, textAlign: 'center' }}>{safePage} / {totalPages}</span>
+          <span style={{ fontSize: 14, color: C.textDark, minWidth: 80, textAlign: 'center' }}>{safePage} / {totalPages}</span>
           <PagBtn label="Next" disabled={safePage === totalPages} onClick={() => setPage(p => p + 1)} />
         </div>
 
         {/* Col 3: go to page */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 13, color: C.textMid }}>Go to page</span>
+          <span style={{ fontSize: 14, color: C.textDark, fontWeight: 700 }}>Go to page</span>
           <input
             value={goTo}
             onChange={e => setGoTo(e.target.value)}
             onKeyDown={handleGoTo}
             placeholder={String(safePage)}
-            style={{ width: 52, padding: '6px 10px', borderRadius: 9, border: `1px solid ${C.border}`, fontSize: 13, color: C.textDark, outline: 'none', textAlign: 'center' }}
+            style={{ width: 52, padding: '6px 10px', borderRadius: 9, border: `1px solid ${C.border}`, fontSize: 14, color: C.textDark, outline: 'none', textAlign: 'center' }}
           />
         </div>
       </div>
@@ -416,14 +375,15 @@ export default function MembersPage() {
 
 const PagBtn = ({ label, onClick, disabled, active }) => (
   <button
+    type="button"
     onClick={onClick}
     disabled={disabled}
     style={{
       minWidth: 34, height: 34, padding: '0 10px', borderRadius: 9,
       border: `1px solid ${active ? C.blue : '#E8EDF5'}`,
       background: active ? C.blue : '#FFFFFF',
-      fontSize: 13, fontWeight: 600,
-      color: active ? '#fff' : disabled ? '#94A3B8' : '#1C2B4A',
+      fontSize: 14, fontWeight: 600,
+      color: active ? '#fff' : 'rgb(61,61,61)',
       cursor: disabled ? 'default' : 'pointer',
     }}
   >{label}</button>

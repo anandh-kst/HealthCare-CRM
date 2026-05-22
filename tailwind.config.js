@@ -55,9 +55,9 @@ export default {
         },
         // ── Text ──
         text: {
-          primary:   '#1C2B4A',
-          secondary: '#64748B',
-          muted:     '#94A3B8',
+          primary:   'rgb(61,61,61)',
+          secondary: 'rgb(61,61,61)',
+          muted:     'rgb(61,61,61)',
           inverse:   '#FFFFFF',
         },
         // ── Donut / Status ──
@@ -68,7 +68,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        sans: ['Myriad Pro', 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       fontSize: {
