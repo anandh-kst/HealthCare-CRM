@@ -281,6 +281,7 @@ const ChartTip = ({ active, payload, label }) => {
 // ─── Stat card ────────────────────────────────────────────
 const StatCard = ({ label, value, prefix = '', suffix = '', animated = false, pct, pctColor = C.emerald, right, iconBg = '#F1F5F9', icon }) => (
   <div
+    className="dashboard-card"
     style={{ background: C.cardBg, borderRadius: 16, padding: '24px 18px', border: `1px solid ${C.border}`, flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20, transition: 'box-shadow 0.2s, transform 0.2s', cursor: 'default' }}
     onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 32px rgba(74,127,229,0.13)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
     onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
@@ -396,10 +397,10 @@ export default function DashboardPage() {
 
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%', padding: '8px 0 16px' }}>
+    <div className="dashboard-page" style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%', padding: '8px 0 16px' }}>
 
       {/* ── Row 1: 4 stat cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
+      <div className="dashboard-grid-cols-4 dashboard-stat-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
 
         <StatCard
           label="Total Members"
@@ -442,10 +443,10 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Row 2: Bar chart + Donut ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 14 }}>
+      <div className="dashboard-grid-cols-2 dashboard-card-row" style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 14 }}>
 
         {/* Bar chart card */}
-        <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px 0', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column' }}>
+        <div className="dashboard-card dashboard-chart-card" style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px 0', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexShrink: 0 }}>
             <span className="card-title">Member Growth Trends</span>
             {/* Tab switcher */}
@@ -486,12 +487,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Donut card */}
-        <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column' }}>
+        <div className="dashboard-card dashboard-donut-card" style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column' }}>
           <span className="card-title" style={{ marginBottom: 12 }}>Member Status Distribution</span>
 
           {/* Donut + legend side by side */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-            <div style={{ position: 'relative', flexShrink: 0, width: '50%', display: 'flex', justifyContent: 'center' }}>
+          <div className="dashboard-donut-layout" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+            <div className="dashboard-donut-visual" style={{ position: 'relative', flexShrink: 0, width: '50%', display: 'flex', justifyContent: 'center' }}>
               <RoundedDonut data={donutData} size={220} cx={106} cy={106} innerRadius={64} outerRadius={100} animate={ready} />
               <div style={{
                 position: 'absolute', top: '50%', left: '50%',
@@ -508,7 +509,7 @@ export default function DashboardPage() {
               </div>
             </div>
             {/* Legend + banner stacked in 40% */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '50%' }}>
+            <div className="dashboard-donut-legend" style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '50%' }}>
               {donutData.map((d) => (
                 <div key={d.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', lineHeight: 1.8 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -534,8 +535,8 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Row 3: Upcoming Challenges ── */}
-      <div style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}`, marginBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+      <div className="dashboard-card dashboard-challenges-card" style={{ background: C.cardBg, borderRadius: 16, padding: '18px 20px', border: `1px solid ${C.border}`, marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
           <span className="card-title">Upcoming Challenges</span>
           <button style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color: C.blue, background: 'none', border: 'none', cursor: 'pointer' }}>
             View all
@@ -545,7 +546,7 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+        <div className="dashboard-grid-cols-3 dashboard-challenges-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
           {challenges.map((c) => (
             <div
               key={c.id}

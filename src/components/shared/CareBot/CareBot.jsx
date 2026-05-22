@@ -147,7 +147,7 @@ export default function CareBot() {
       {/* ══════════════════════════════════════════
           FAB — fixed pill, always icon + text
       ══════════════════════════════════════════ */}
-      <div style={{ position: 'fixed', bottom: 28, right: 28, zIndex: 9999 }}>
+      <div className="cb-fab-wrap" style={{ position: 'fixed', bottom: 28, right: 28, zIndex: 9999 }}>
         <button
           className="cb-fab"
           onClick={() => setChatOpen((o) => !o)}
@@ -194,7 +194,7 @@ export default function CareBot() {
       ══════════════════════════════════════════ */}
       {chatOpen && (
         <div
-          className="cb-panel"
+          className="cb-panel-wrap"
           style={{
             position: 'fixed', bottom: 92, right: 28, zIndex: 9998,
             width: 385,

@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import BottomNav from './BottomNav';
 import ErrorBoundary from '@components/shared/ErrorBoundary';
 import CareBot from '@components/shared/CareBot';
 
@@ -27,7 +28,7 @@ const DashboardLayout = () => {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Topbar title={title} />
         <main
-          className="flex-1 overflow-y-auto"
+          className="flex-1 overflow-y-auto mobile-content-bottom-padding"
           style={{ padding: '18px 20px 18px 16px' }}
         >
           <ErrorBoundary>
@@ -38,6 +39,7 @@ const DashboardLayout = () => {
 
       {/* Care Bot — fixed FAB, available on all screens */}
       <CareBot />
+      <BottomNav />
     </div>
   );
 };

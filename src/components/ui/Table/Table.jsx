@@ -1,5 +1,5 @@
 const Table = ({ columns, data, onRowClick }) => (
-  <div className="overflow-x-auto rounded-card border border-surface-border">
+  <div className="responsive-table overflow-x-auto rounded-card border border-surface-border">
     <table className="w-full text-body-sm">
       <thead className="bg-surface-muted border-b border-surface-border">
         <tr>

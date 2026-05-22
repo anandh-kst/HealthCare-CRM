@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { FiCalendar, FiCheckCircle, FiMail, FiMoreVertical, FiUser, FiUsers } from 'react-icons/fi';
 import Dropdown from '@components/shared/Dropdown';
+import InviteMembersPopup from '@components/shared/InviteMembersPopup';
 
 const C = {
   blue:      '#4A7FE5',
@@ -103,6 +104,7 @@ export default function MembersPage() {
   const [perPage,  setPerPage]  = useState(10);
   const [goTo,     setGoTo]     = useState('');
   const [openMenu, setOpenMenu] = useState(null);
+  const [showInvitePopup, setShowInvitePopup] = useState(false);
 
   const filtered = useMemo(() => {
     const query = search.toLowerCase();
@@ -183,7 +185,7 @@ export default function MembersPage() {
         </div>
 
         {/* Invite */}
-        <button type="button" style={{ display: 'flex', alignItems: 'center', gap: 7, height: 50, padding: '0 18px', borderRadius: 10, border: 'none', background: C.blue, fontSize: 14, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(74,127,229,0.25)', flexShrink: 0 }}>
+        <button type="button" onClick={() => setShowInvitePopup(true)} style={{ display: 'flex', alignItems: 'center', gap: 7, height: 50, padding: '0 18px', borderRadius: 10, border: 'none', background: C.blue, fontSize: 14, fontWeight: 600, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(74,127,229,0.25)', flexShrink: 0 }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
           </svg>
@@ -200,9 +202,17 @@ export default function MembersPage() {
 
       </div>
 
+      <InviteMembersPopup
+        isOpen={showInvitePopup}
+        onClose={() => setShowInvitePopup(false)}
+        onSubmit={(payload) => {
+          console.log('Invite payload:', payload);
+        }}
+      />
+
       {/* ── Row 3: Table ── */}
-      <div style={{ background: C.cardBg, borderRadius: 16, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', borderSpacing: 0, tableLayout: 'fixed' }}>
+      <div className="responsive-table" style={{ background: C.cardBg, borderRadius: 16, border: `1px solid ${C.border}` }}>
+        <table style={{ width: '100%', minWidth: 760, borderCollapse: 'collapse', borderSpacing: 0 }}>
           <colgroup>
             <col style={{ width: '27%' }} />
             <col style={{ width: '18%' }} />

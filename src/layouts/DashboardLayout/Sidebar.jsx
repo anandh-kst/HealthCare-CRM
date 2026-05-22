@@ -203,7 +203,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div style={{
+    <div className="dashboard-sidebar" style={{
       width: W, flexShrink: 0, height: '100vh',
       display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
       padding: '12px 0 12px 12px',

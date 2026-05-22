@@ -15,22 +15,22 @@ const getGreeting = () => {
 const Topbar = ({ title = 'Dashboard' }) => (
   <header
     style={{
-      height: 68,
+      height: 76,
       flexShrink: 0,
       display: 'grid',
       gridTemplateColumns: '1fr 1fr 1fr',
-      alignItems: 'center',
+      alignItems: 'stretch',
       background: 'transparent',
-      padding: '12px 28px 0 24px',
+      padding: '0 28px 0 24px',
     }}
   >
     {/* Left — Page title */}
-    <h1 style={{ fontSize: 19, fontWeight: 700, color: '#1C2B4A', letterSpacing: '-0.4px', margin: 0 }}>
+    <h1 style={{ fontSize: 19, fontWeight: 700, color: '#1C2B4A', letterSpacing: '-0.4px', margin: 0, alignSelf: 'center' }}>
       {title}
     </h1>
 
     {/* Center — Greeting */}
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
       <span style={{ fontSize: 17, fontWeight: 800, color: '#1C2B4A', whiteSpace: 'nowrap', letterSpacing: '-0.3px' }}>
         Welcome back to KST Health Org Portal
       </span>
